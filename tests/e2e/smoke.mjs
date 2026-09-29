@@ -45,7 +45,7 @@ try {
   assert.ok((await count()) > 0, 'starter armies placed');
 
   step('clear and place with real clicks');
-  await page.click('#clearAllBtn');
+  await page.click('#clearAllBtn'); await page.click('#clearAllBtn');
   assert.equal(await count(), 0);
   await game(() => { window.__battlesim.renderer.controls.target.set(0, 0, 0); window.__battlesim.renderer.camera.position.set(0, 30, 34); });
   await page.waitForTimeout(300);
@@ -115,7 +115,7 @@ try {
   await page.waitForFunction(() => window.__battlesim, null, { timeout: 20000 });
   assert.equal(await page.isHidden('#help'), true, 'help only shows on first visit');
   assert.equal(await count(), before, 'autosave restored');
-  await page.click('#clearAllBtn');
+  await page.click('#clearAllBtn'); await page.click('#clearAllBtn');
   await page.click('#saveBtn');
   await page.click('#slotList li button.primary');
   assert.equal(await count(), before, 'slot loaded');
@@ -126,7 +126,7 @@ try {
   await page.waitForFunction(() => document.querySelector('#shareCode').value.startsWith('BSIM'));
   const code = await page.inputValue('#shareCode');
   await page.click('#modal .close');
-  await page.click('#clearAllBtn');
+  await page.click('#clearAllBtn'); await page.click('#clearAllBtn');
   assert.equal(await count(), 0);
   await page.click('#saveBtn');
   await page.fill('#shareCode', 'definitely not a code');

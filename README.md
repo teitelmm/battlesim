@@ -7,11 +7,36 @@ wobbly armies smash into each other, with floppy ragdolls, explosions and eye-be
 Built with [three.js](https://threejs.org/) and plain JavaScript. It uses no game engine,
 and the physics and ragdolls are custom and deterministic.
 
-## Play
+## Play without installing anything
+
+The whole game is one file, [`BattleSim.html`](BattleSim.html). Download it and open it
+in Chrome, Edge or Firefox. You don't need Node.js or a web server.
+
+**Windows** (Command Prompt or PowerShell):
+
+```
+curl.exe -L -o BattleSim.html https://raw.githubusercontent.com/teitelmm/battlesim/HEAD/BattleSim.html
+start BattleSim.html
+```
+
+**Mac:**
+
+```bash
+curl -L -o BattleSim.html https://raw.githubusercontent.com/teitelmm/battlesim/HEAD/BattleSim.html
+open BattleSim.html
+```
+
+**Linux:** use the same `curl` line, then `xdg-open BattleSim.html`.
+
+After the first download you can simply double-click `BattleSim.html` to play again.
+Your saved armies stay in that browser.
+
+## Develop
 
 ```bash
 npm install
-npm run dev        # open the printed http://localhost:5173 URL
+npm run dev            # live-reloading dev server at the printed http://localhost:5173 URL
+npm run build:single   # regenerate BattleSim.html after changing the code
 ```
 
 `npm run build` produces a static site in `dist/` that you can host anywhere, including

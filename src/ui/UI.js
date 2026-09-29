@@ -167,10 +167,20 @@ export class UI {
       this.game.clearTeam(this.team);
       this.toast(`${TEAM_NAMES[this.team]} army cleared`);
     });
-    $('#clearAllBtn').addEventListener('click', () => {
+    // Two-step confirm built into the button (browser confirm dialogs can be blocked).
+    const clearAll = $('#clearAllBtn');
+    const disarm = () => { clearTimeout(this.clearTimer); clearAll.classList.remove('confirm'); clearAll.textContent = 'Clear all'; };
+    clearAll.addEventListener('click', () => {
       if (!this.game.placement.length) return;
-      if (!confirm('Remove every unit from the field?')) return;
+      if (!clearAll.classList.contains('confirm')) {
+        clearAll.classList.add('confirm');
+        clearAll.textContent = 'Click again to clear';
+        this.clearTimer = setTimeout(disarm, 3000);
+        return;
+      }
+      disarm();
       this.game.setPlacement([]);
+      this.toast('Field cleared');
     });
     this.setTeam(0);
   }
