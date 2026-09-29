@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="Creative-mode 3D battle simulator: place cavemen, knights, laser troopers and superheroes, then watch the chaos." />
+    <title>BattleSim</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚔️</text></svg>" />
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="view" aria-label="Battlefield"></canvas>
+
+      <header id="topbar">
+        <div class="brand">⚔️ BattleSim <small>creative mode</small></div>
+        <div class="armies" aria-live="polite">
+          <div class="army red"><b id="redCount">0</b><span id="redLabel">units</span><em id="redCost">0g</em></div>
+          <div class="vs">VS</div>
+          <div class="army blue"><b id="blueCount">0</b><span id="blueLabel">units</span><em id="blueCost">0g</em></div>
+        </div>
+        <div class="controls">
+          <button id="startBtn" class="primary" title="Start battle (Space)">▶ Start</button>
+          <button id="resetBtn" title="Back to setup (R)">⟲ Reset</button>
+          <div class="speed" role="group" aria-label="Simulation speed">
+            <button data-speed="0.25">¼×</button><button data-speed="0.5">½×</button><button data-speed="1" class="on">1×</button><button data-speed="2">2×</button><button data-speed="4">4×</button>
+          </div>
+          <button id="randomBtn" title="Random battle">🎲</button>
+          <button id="saveBtn" title="Save, load & share armies">💾</button>
+          <button id="soundBtn" title="Toggle sound (M)">🔊</button>
+          <button id="helpBtn" title="Controls (H)">?</button>
+        </div>
+      </header>
+
+      <section id="palette" aria-label="Unit palette">
+        <div class="palette-top">
+          <div class="team-toggle" role="group" aria-label="Team">
+            <button data-team="0" class="red on" title="Place for Red (T)">Red</button>
+            <button data-team="1" class="blue" title="Place for Blue (T)">Blue</button>
+          </div>
+          <div class="eras" role="tablist"></div>
+          <div class="tools">
+            <button id="eraseBtn" title="Eraser (X)">🧽 Eraser</button>
+            <button id="clearTeamBtn" title="Remove all units of the selected team">Clear team</button>
+            <button id="clearAllBtn" title="Remove every unit">Clear all</button>
+          </div>
+        </div>
+        <div class="cards" role="listbox" aria-label="Units"></div>
+      </section>
+
+      <div id="tooltip" hidden></div>
+      <div id="battlehint" hidden>Right-drag or left-drag to orbit · scroll to zoom · WASD to pan · F to follow a fighter</div>
+
+      <div id="banner" hidden>
+        <div class="banner-card">
+          <h1 id="bannerTitle">Red wins!</h1>
+          <p id="bannerStats"></p>
+          <div class="row">
+            <button id="bannerReset" class="primary">⟲ Back to setup</button>
+            <button id="bannerWatch">Keep watching</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="modal" hidden>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+          <button class="close" data-close aria-label="Close">✕</button>
+          <h2 id="modalTitle">Save, load &amp; share</h2>
+          <div class="save-row">
+            <input id="saveName" maxlength="40" placeholder="Army name" autocomplete="off" />
+            <button id="saveConfirm" class="primary">Save current setup</button>
+          </div>
+          <h3>Saved setups</h3>
+          <ul id="slotList"></ul>
+          <h3>Scenarios</h3>
+          <div id="scenarioList" class="chips"></div>
+          <h3>Share code</h3>
+          <div class="share">
+            <textarea id="shareCode" rows="3" spellcheck="false" placeholder="Click Export to create a code, or paste one here and click Import"></textarea>
+            <div class="row">
+              <button id="exportBtn">Export</button>
+              <button id="copyBtn">Copy</button>
+              <button id="importBtn" class="primary">Import</button>
+            </div>
+            <p id="shareMsg" class="msg" role="status"></p>
+          </div>
+        </div>
+      </div>
+
+      <div id="help" hidden>
+        <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+          <button class="close" data-close aria-label="Close">✕</button>
+          <h2 id="helpTitle">How to play</h2>
+          <ol>
+            <li>Pick a <b>team</b> and a <b>unit</b> from the palette at the bottom.</li>
+            <li><b>Click</b> the field to place one, or <b>click-drag</b> to paint a group.</li>
+            <li>Build both armies, then press <b>▶ Start</b> and enjoy the chaos.</li>
+            <li><b>Reset</b> puts everyone back so you can tweak and try again.</li>
+          </ol>
+          <p class="touch-note">On touch screens: tap or drag to place, two fingers to rotate and zoom.</p>
+          <table class="keys">
+            <tr><td>Right-drag</td><td>Orbit camera (left-drag too, during battle)</td></tr>
+            <tr><td>Middle-drag / WASD</td><td>Pan camera</td></tr>
+            <tr><td>Wheel</td><td>Zoom</td></tr>
+            <tr><td>Q / E</td><td>Rotate camera</td></tr>
+            <tr><td>Space</td><td>Start / pause</td></tr>
+            <tr><td>R</td><td>Reset to setup</td></tr>
+            <tr><td>T</td><td>Switch team</td></tr>
+            <tr><td>X</td><td>Eraser · Delete removes the hovered unit</td></tr>
+            <tr><td>1–5</td><td>Pick a unit in the current era</td></tr>
+            <tr><td>F</td><td>Follow a random fighter</td></tr>
+            <tr><td>C</td><td>Recenter camera</td></tr>
+            <tr><td>M</td><td>Mute</td></tr>
+          </table>
+          <button data-close class="primary">Let's fight!</button>
+        </div>
+      </div>
+
+      <div id="toasts" aria-live="polite"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

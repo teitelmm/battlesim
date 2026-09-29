@@ -1,0 +1,23 @@
+{
+  "name": "battlesim",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A 3D creative-mode battle simulator: cavemen vs knights vs laser troopers vs superheroes.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "balance": "node scripts/balance.mjs",
+    "smoke": "node tests/e2e/smoke.mjs"
+  },
+  "dependencies": {
+    "three": "^0.186.1"
+  },
+  "devDependencies": {
+    "playwright": "1.56.1",
+    "vite": "^8.3.1",
+    "vitest": "^5.0.2"
+  }
+}

@@ -1,0 +1,10 @@
+export const STEP = 1 / 60;
+export const GRAVITY = 20;
+export const ARENA_HALF = 60;
+export const TEAM_RED = 0;
+export const TEAM_BLUE = 1;
+export const TEAM_NAMES = ['Red', 'Blue'];
+export const MAX_UNITS = 1500;
+export const MAX_RAGDOLLS = 450;
+export const MAX_DEBRIS = 300;
+export const BATTLE_TIME_LIMIT = 600;
