@@ -1,0 +1,1246 @@
+<title>AP Micro Unit 2 Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=IBM+Plex+Mono:wght@400;600&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: graph-paper workspace; sticky tab strip; each tool is a two-column bench (controls | figure) that stacks on phones */
+:root{
+  --paper:#EFF3F1; --grid:#E1E8E5; --surface:#FFFFFF; --sunk:#F5F8F7;
+  --ink:#15212A; --muted:#58686D; --rule:#CCD8D4;
+  --demand:#1E55C0; --supply:#C42A41; --accent:#0D6B5B; --accent-ink:#FFFFFF;
+  --good:#1C7C45; --good-bg:#E3F3E9; --bad:#B8322A; --bad-bg:#FBE7E4;
+  --gold:#B07A0C; --blank:#DCE7F7;
+  --f-display:"Archivo","Arial Narrow",Helvetica,sans-serif;
+  --f-body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#0E1417; --grid:#162024; --surface:#161F23; --sunk:#11191C;
+  --ink:#E3ECE9; --muted:#93A5A7; --rule:#2A3A3C;
+  --demand:#79A2FF; --supply:#FF6F82; --accent:#3BC4A5; --accent-ink:#06201A;
+  --good:#55D190; --good-bg:#12301F; --bad:#FF7F70; --bad-bg:#3A1714;
+  --gold:#F0B93A; --blank:#1E2E4A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --paper:#0E1417; --grid:#162024; --surface:#161F23; --sunk:#11191C;
+  --ink:#E3ECE9; --muted:#93A5A7; --rule:#2A3A3C;
+  --demand:#79A2FF; --supply:#FF6F82; --accent:#3BC4A5; --accent-ink:#06201A;
+  --good:#55D190; --good-bg:#12301F; --bad:#FF7F70; --bad-bg:#3A1714;
+  --gold:#F0B93A; --blank:#1E2E4A; color-scheme:dark }
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background-color:var(--paper);color:var(--ink);font:400 15px/1.55 var(--f-body);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px}
+.wrap{max-width:1100px;margin:0 auto;padding-inline:16px;padding-block:22px 56px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0}
+button,select,input{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.mono{font-family:var(--f-mono)}
+.muted{color:var(--muted)}
+
+/* header */
+.top{display:flex;flex-wrap:wrap;gap:16px 28px;align-items:end;justify-content:space-between;margin-bottom:18px}
+.eyebrow{font:600 12px/1 var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+h1{font-size:clamp(28px,5vw,46px);font-weight:850;font-stretch:118%;line-height:1;letter-spacing:-.01em;margin-top:8px}
+h1 .d{color:var(--demand)} h1 .s{color:var(--supply)}
+.stats{display:flex;flex-wrap:wrap;gap:8px}
+.stat{background:var(--surface);border:1px solid var(--rule);border-radius:999px;padding:6px 12px;font-size:13px;display:flex;gap:6px;align-items:baseline}
+.stat b{font:600 13px var(--f-mono);font-variant-numeric:tabular-nums}
+
+/* tabs */
+.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;display:flex;gap:4px;overflow-x:auto;padding:6px;background:var(--surface);border:1px solid var(--rule);border-radius:12px;margin-bottom:18px;scrollbar-width:none}
+.tab{flex:0 0 auto;border:0;background:none;padding:9px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer;color:var(--muted);white-space:nowrap}
+.tab:hover{color:var(--ink);background:var(--sunk)}
+.tab[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+
+.panel{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.panel>*,.guide>*{min-width:0}
+.card{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:20px}
+.card h2{font-size:22px;font-weight:800;font-stretch:110%}
+.lede{margin:6px 0 0;color:var(--muted);max-width:68ch}
+
+.btn{border:1px solid var(--rule);background:var(--surface);padding:8px 14px;border-radius:8px;font-weight:600;font-size:14px;cursor:pointer}
+.btn:hover{border-color:var(--ink)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:9px;padding:3px;gap:3px;background:var(--sunk)}
+.seg button{border:0;background:none;padding:7px 12px;border-radius:6px;font-weight:600;font-size:13.5px;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+
+/* ---------- study guide ---------- */
+.guide-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.guide{display:grid;grid-template-columns:minmax(0,1fr);gap:14px}
+.gsec{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:20px 22px}
+.gsec h3{font-size:19px;font-weight:800;font-stretch:112%;display:flex;gap:10px;align-items:baseline;margin-bottom:10px}
+.gsec h3 .tag{font:600 11px var(--f-mono);letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.gsec h4{font-size:15px;margin:16px 0 6px;font-family:var(--f-body);font-weight:700}
+.gsec p,.gsec li{max-width:72ch}
+.gsec p{margin:6px 0}
+.gsec ul{margin:6px 0;padding-left:20px}
+.bl{display:inline;border:0;padding:1px 5px;margin:0 1px;border-radius:4px;background:var(--blank);color:var(--ink);font-weight:600;font-size:inherit;line-height:inherit;text-align:left;cursor:default;border-bottom:2px solid var(--demand)}
+.guide.practice .bl{cursor:pointer}
+.guide.practice .bl:not(.on){color:transparent;background:var(--sunk);border-bottom:2px dashed var(--muted);user-select:none}
+.guide.practice .bl:not(.on)::selection{background:transparent}
+.guide.practice .bl.on{animation:pop .25s ease}
+@keyframes pop{from{background:var(--good-bg)}}
+.mn{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin:8px 0}
+.mn div{display:flex;gap:10px;align-items:baseline;background:var(--sunk);border-radius:8px;padding:8px 10px}
+.mn .L{font:800 20px var(--f-display);font-stretch:120%;width:20px;flex:none}
+.mn small{display:block;color:var(--muted);font-size:12.5px;margin-top:2px}
+.note{font-size:13.5px;color:var(--muted)}
+.fix{border-left:3px solid var(--gold);padding:6px 10px;background:var(--sunk);border-radius:0 6px 6px 0;font-size:13.5px;margin:8px 0}
+.frac{display:inline-grid;text-align:center;vertical-align:middle;font:600 13.5px var(--f-mono);margin:0 6px}
+.frac span:first-child{border-bottom:1.5px solid currentColor;padding:0 4px 2px}
+.frac span:last-child{padding:2px 4px 0}
+.goto{font-weight:600;color:var(--accent);text-decoration:none;border-bottom:1px solid currentColor}
+.tbl-wrap{overflow-x:auto}
+table{border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+th,td{padding:7px 10px;border-bottom:1px solid var(--rule);text-align:left}
+th{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.up{color:var(--good);font-weight:700}.dn{color:var(--bad);font-weight:700}.q{color:var(--gold);font-weight:700}
+
+/* ---------- flashcards ---------- */
+.fc-wrap{display:grid;gap:14px;max-width:720px;margin:0 auto;width:100%}
+.fc{perspective:1200px;cursor:pointer;min-height:260px}
+.fc-in{position:relative;width:100%;min-height:260px;transition:transform .45s cubic-bezier(.3,.7,.3,1);transform-style:preserve-3d}
+.fc.flip .fc-in{transform:rotateY(180deg)}
+.fc-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--surface);border:1px solid var(--rule);border-radius:14px;padding:24px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:10px;overflow:auto}
+.fc-back{transform:rotateY(180deg);background:var(--sunk)}
+.fc-term{font:800 clamp(24px,4.5vw,34px)/1.1 var(--f-display);font-stretch:112%}
+.fc-def{font-size:16.5px;max-width:52ch;line-height:1.55}
+.fc-topic{font:600 11px var(--f-mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.fc-know{position:absolute;top:14px;right:16px;font:600 11px var(--f-mono);color:var(--good)}
+.meter{height:8px;background:var(--sunk);border-radius:99px;overflow:hidden;border:1px solid var(--rule)}
+.meter i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+.fc-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fc-actions .btn{padding:12px}
+.btn.again{border-color:var(--bad);color:var(--bad)}
+.btn.got{border-color:var(--good);color:var(--good)}
+.kbd{font:600 11px var(--f-mono);border:1px solid var(--rule);border-bottom-width:2px;border-radius:4px;padding:1px 5px}
+.done{text-align:center;padding:36px 20px;display:grid;gap:12px;justify-items:center}
+
+/* ---------- quiz ---------- */
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);border-radius:999px;padding:6px 12px;cursor:pointer;font-size:14px;font-weight:500;background:var(--surface)}
+.chip input{accent-color:var(--accent);margin:0}
+.chip:has(input:checked){border-color:var(--accent);background:var(--sunk)}
+.qhead{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:600 13px var(--f-mono);color:var(--muted)}
+.qtext{font-size:18px;font-weight:600;margin:12px 0 16px;max-width:70ch;line-height:1.45}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:12px;align-items:flex-start;text-align:left;border:1px solid var(--rule);background:var(--surface);border-radius:9px;padding:11px 14px;cursor:pointer;font-size:15px;line-height:1.4}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt .k{font:600 12px var(--f-mono);border:1px solid var(--rule);border-radius:5px;padding:1px 6px;flex:none;margin-top:1px}
+.opt.right{border-color:var(--good);background:var(--good-bg)}
+.opt.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.opt:disabled{cursor:default}
+.explain{margin-top:14px;padding:12px 14px;border-radius:9px;background:var(--sunk);border:1px solid var(--rule);font-size:14.5px}
+.explain b.ok{color:var(--good)} .explain b.no{color:var(--bad)}
+.big{font:850 64px/1 var(--f-display);font-stretch:120%;font-variant-numeric:tabular-nums}
+.missed{display:grid;gap:10px;margin-top:8px}
+.missed div{border-left:3px solid var(--bad);padding:4px 12px;font-size:14px}
+
+/* ---------- graph lab ---------- */
+.bench{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:18px;align-items:start}
+@media (max-width:820px){.bench{grid-template-columns:minmax(0,1fr)}}
+.fig{background:var(--surface);border:1px solid var(--rule);border-radius:var(--r);padding:10px 10px 12px}
+.fig svg{width:100%;height:auto;display:block}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);padding:4px 8px 0}
+.legend span{display:inline-flex;gap:6px;align-items:center}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+.ctl{display:grid;gap:14px}
+.ctl label.lab,.lab{font:600 11.5px var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+.scen{background:var(--sunk);border-radius:9px;padding:14px 16px;border:1px solid var(--rule)}
+.scen .mk{font:800 20px var(--f-display);font-stretch:112%}
+.scen p{margin:6px 0 0}
+.choice{display:flex;flex-wrap:wrap;gap:6px}
+.choice button{border:1px solid var(--rule);background:var(--surface);border-radius:8px;padding:7px 11px;font-size:13.5px;font-weight:600;cursor:pointer}
+.choice button[aria-pressed="true"]{border-color:var(--ink);background:var(--ink);color:var(--paper)}
+.choice button.right{border-color:var(--good);background:var(--good-bg);color:var(--good)}
+.choice button.wrong{border-color:var(--bad);background:var(--bad-bg);color:var(--bad)}
+.choice button:disabled{cursor:default}
+.fb{padding:12px 14px;border-radius:9px;font-size:14.5px;border:1px solid var(--rule);background:var(--sunk)}
+.fb.ok{border-color:var(--good)} .fb.no{border-color:var(--bad)}
+.fb h4{margin:0 0 4px;font-size:15px}
+.pill{display:inline-block;font:600 11px var(--f-mono);letter-spacing:.06em;padding:2px 8px;border-radius:99px;border:1px solid var(--rule);background:var(--surface);margin-top:6px}
+.read{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px;font-size:14px}
+.read div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dashed var(--rule);padding:3px 0}
+.read b{font:600 14px var(--f-mono);font-variant-numeric:tabular-nums}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.shiftpad{display:grid;grid-template-columns:auto 1fr;gap:8px 12px;align-items:center}
+.shiftpad .nm{font-weight:700}
+svg .ax{stroke:var(--ink);stroke-width:1.6}
+svg .tk{stroke:var(--rule);stroke-width:1}
+svg text{fill:var(--muted);font:500 11px var(--f-mono)}
+svg text.big{fill:var(--ink);font:700 13px var(--f-mono)}
+svg .Dc{stroke:var(--demand);stroke-width:3;fill:none;stroke-linecap:round}
+svg .Sc{stroke:var(--supply);stroke-width:3;fill:none;stroke-linecap:round}
+svg .old{stroke-width:2;stroke-dasharray:6 5;opacity:.55}
+svg .tax{stroke:var(--supply);stroke-width:2.2;stroke-dasharray:8 4;fill:none}
+svg .Dt{fill:var(--demand);font-weight:700;font-size:13px}
+svg .St{fill:var(--supply);font-weight:700;font-size:13px}
+svg .gd{stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 4}
+svg .eq{fill:var(--ink)}
+svg .eq1{fill:var(--surface);stroke:var(--muted);stroke-width:2}
+svg .cs{fill:var(--demand);fill-opacity:.17}
+svg .ps{fill:var(--supply);fill-opacity:.17}
+svg .rev{fill:var(--good);fill-opacity:.22}
+svg .dwl{fill:url(#hatch);stroke:var(--gold);stroke-width:1.2}
+svg .dwl-bg{fill:var(--gold);fill-opacity:.12}
+svg .dwl-ln{stroke:var(--gold);stroke-width:1.6}
+svg .ctrl{stroke:var(--ink);stroke-width:2.2}
+svg .arw{fill:var(--ink)}
+svg .sa{stroke:var(--ink);stroke-width:1.8}
+svg .gap{stroke:var(--gold);stroke-width:3}
+svg .gapt{fill:var(--gold);font-weight:700}
+
+/* ---------- elasticity / utility ---------- */
+.prob{font-size:18px;line-height:1.5;font-weight:500;max-width:60ch}
+.prob b{font-weight:700}
+.numin{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.numin input{width:120px;padding:8px 10px;border:1px solid var(--rule);border-radius:8px;background:var(--surface);font:600 16px var(--f-mono)}
+.numin input.right{border-color:var(--good);background:var(--good-bg)}
+.numin input.wrong{border-color:var(--bad);background:var(--bad-bg)}
+.cheat td,.cheat th{padding:6px 10px}
+.ut td.b{background:var(--good-bg);font-weight:700}
+.ut td.nx{outline:2px dashed var(--accent);outline-offset:-3px}
+.ut.hideR .r{color:transparent}
+.ut th.gA{color:var(--demand)} .ut th.gB{color:var(--supply)}
+.cart{display:flex;flex-wrap:wrap;gap:8px}
+.log{font-size:14px;display:grid;gap:4px;max-height:200px;overflow:auto;padding-right:4px}
+.log div{padding:4px 8px;border-radius:6px;background:var(--sunk)}
+.log div.no{background:var(--bad-bg)}
+.split{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.split{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">AP Microeconomics · Unit 2 test prep</div>
+      <h1><span class="d">Supply</span>, <span class="s">Demand</span><br>&amp; Consumer Choice</h1>
+    </div>
+    <div class="stats" aria-label="Your progress">
+      <span class="stat">Cards known <b id="st-cards">0/0</b></span>
+      <span class="stat">Best quiz <b id="st-quiz">—</b></span>
+      <span class="stat">Shift predictions <b id="st-pred">0/0</b></span>
+      <span class="stat">Elasticity drills <b id="st-el">0/0</b></span>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="Study tools">
+    <button class="tab" role="tab" data-tab="guide">Study Guide</button>
+    <button class="tab" role="tab" data-tab="cards">Flashcards</button>
+    <button class="tab" role="tab" data-tab="quiz">Practice Test</button>
+    <button class="tab" role="tab" data-tab="graph">Graph Lab</button>
+    <button class="tab" role="tab" data-tab="elastic">Elasticity Drills</button>
+    <button class="tab" role="tab" data-tab="utility">Utility Shopper</button>
+  </nav>
+
+  <!-- ================= STUDY GUIDE ================= -->
+  <section class="panel" id="tab-guide" role="tabpanel">
+    <div class="card guide-bar">
+      <div style="min-width:0">
+        <h2>Completed study guide</h2>
+        <p class="lede">Every blank from your sheet is filled in and highlighted. Switch to <b>Cover answers</b> to hide them, then tap each blank to check yourself.</p>
+      </div>
+      <div class="row">
+        <div class="seg" id="g-mode">
+          <button type="button" data-m="answers" aria-pressed="true">Show answers</button>
+          <button type="button" data-m="practice" aria-pressed="false">Cover answers</button>
+        </div>
+        <span id="g-tools" class="row" hidden>
+          <button class="btn" id="g-all" type="button">Reveal all</button>
+          <button class="btn" id="g-none" type="button">Cover all</button>
+          <b class="mono" id="g-count" style="font-size:13px"></b>
+        </span>
+      </div>
+    </div>
+
+    <div class="guide" id="guide">
+      <article class="gsec">
+        <h3>Demand <span class="tag">consumers</span></h3>
+        <h4>Law of Demand</h4>
+        <p><button class="bl" type="button">As price rises, quantity demanded falls, and as price falls, quantity demanded rises. It is an inverse relationship, ceteris paribus.</button></p>
+        <h4>Causes of Demand Curve Shifts (SPPICE)</h4>
+        <div class="mn">
+          <div><span class="L">S</span><span><button class="bl" type="button">Substitutes (their prices)</button><small>Price of Pepsi ↑ → demand for Coke ↑</small></span></div>
+          <div><span class="L">P</span><span><button class="bl" type="button">Preferences (tastes)</button><small>A good becomes trendy → demand ↑</small></span></div>
+          <div><span class="L">P</span><span><button class="bl" type="button">Price of complements</button><small>Price of hot dogs ↑ → demand for buns ↓</small></span></div>
+          <div><span class="L">I</span><span><button class="bl" type="button">Income</button><small>Normal goods move with income; inferior goods move opposite</small></span></div>
+          <div><span class="L">C</span><span><button class="bl" type="button">Consumers (number of buyers)</button><small>Population grows → demand ↑</small></span></div>
+          <div><span class="L">E</span><span><button class="bl" type="button">Expectations (future prices or income)</button><small>Expect a price hike next week → demand ↑ today</small></span></div>
+        </div>
+        <p>Be able to sketch a demand curve shift on a supply &amp; demand graph. <a class="goto" href="#graph" data-goto="graph" data-mode="explore">Practice it in the Graph Lab</a></p>
+        <h4>Reasons why the Demand Curve is Downward Sloping</h4>
+        <ul>
+          <li><button class="bl" type="button">Income effect</button> <span class="note">: a lower price raises your purchasing power, so you can buy more.</span></li>
+          <li><button class="bl" type="button">Substitution effect</button> <span class="note">: a lower price makes the good cheaper than its substitutes, so you switch to it.</span></li>
+          <li><button class="bl" type="button">Law of diminishing marginal utility</button> <span class="note">: each extra unit is worth less to you, so you'll only buy more at a lower price.</span></li>
+        </ul>
+        <p><b>A change in price does not shift the demand curve.</b> It causes a movement along the curve (a change in <i>quantity demanded</i>).<br>An increase in demand shifts the demand curve to the <b>right</b>. A decrease in demand shifts it to the <b>left</b>.</p>
+        <h4>Normal Goods</h4>
+        <p>As one's income increases, one purchases <button class="bl" type="button">more</button> normal goods.</p>
+        <h4>Inferior Goods</h4>
+        <p>As one's income increases, one purchases <button class="bl" type="button">fewer (less)</button> inferior goods.</p>
+      </article>
+
+      <article class="gsec">
+        <h3>Supply <span class="tag">producers</span></h3>
+        <h4>Law of Supply</h4>
+        <p><button class="bl" type="button">As price rises, quantity supplied rises, and as price falls, quantity supplied falls. It is a direct (positive) relationship, ceteris paribus.</button></p>
+        <h4>Causes of Supply Curve Shifts (ROTTEN)</h4>
+        <div class="mn">
+          <div><span class="L">R</span><span><button class="bl" type="button">Resource (input) costs</button><small>Wages or raw materials ↑ → supply ↓</small></span></div>
+          <div><span class="L">O</span><span><button class="bl" type="button">Other goods' prices</button><small>Price of a good the firm could make instead ↑ → supply of this one ↓</small></span></div>
+          <div><span class="L">T</span><span><button class="bl" type="button">Taxes and subsidies</button><small>Tax → supply ↓; subsidy → supply ↑</small></span></div>
+          <div><span class="L">T</span><span><button class="bl" type="button">Technology</button><small>Better technology → supply ↑</small></span></div>
+          <div><span class="L">E</span><span><button class="bl" type="button">Expectations of producers</button><small>Expect higher prices later → supply ↓ now</small></span></div>
+          <div><span class="L">N</span><span><button class="bl" type="button">Number of sellers</button><small>More firms enter → supply ↑</small></span></div>
+        </div>
+        <p>Be able to sketch a supply curve shift on a supply &amp; demand graph. <a class="goto" href="#graph" data-goto="graph" data-mode="explore">Practice it in the Graph Lab</a></p>
+        <h4>Reason why the Supply Curve is Upward Sloping</h4>
+        <p><button class="bl" type="button">Increasing marginal cost. Producing more costs more per extra unit, so firms need a higher price (the profit incentive) to supply more.</button></p>
+        <p><b>A change in price does not shift the supply curve.</b> It causes a movement along the curve (a change in <i>quantity supplied</i>).<br>An increase in supply shifts the supply curve to the <b>right</b>. A <b>decrease</b> in supply shifts it to the <b>left</b>.</p>
+        <p class="fix"><b>Typo on your sheet:</b> the last line says "An <i>increase</i> in supply shifts the supply curve to the left." It should say <b>decrease</b>.</p>
+      </article>
+
+      <article class="gsec">
+        <h3>Equilibrium of Supply &amp; Demand</h3>
+        <ul>
+          <li><b>Equilibrium:</b> <button class="bl" type="button">where quantity demanded equals quantity supplied (Qd = Qs). The market clears.</button></li>
+          <li><b>Price is below equilibrium:</b> <button class="bl" type="button">shortage (Qd &gt; Qs), so price gets pushed up</button></li>
+          <li><b>Price is above equilibrium:</b> <button class="bl" type="button">surplus (Qs &gt; Qd), so price gets pushed down</button></li>
+        </ul>
+        <h4>Results of Curve Shifts</h4>
+        <p>When the Demand Curve shifts parallel and to the right, equilibrium price <button class="bl" type="button">increases</button> while equilibrium quantity <button class="bl" type="button">increases</button>.</p>
+        <p>When the Demand Curve shifts parallel and to the left, equilibrium price <button class="bl" type="button">decreases</button> while equilibrium quantity <button class="bl" type="button">decreases</button>.</p>
+        <p>When the Supply Curve shifts parallel and to the right, equilibrium price <button class="bl" type="button">decreases</button> while equilibrium quantity <button class="bl" type="button">increases</button>.</p>
+        <p>When the Supply Curve shifts parallel and to the left, equilibrium price <button class="bl" type="button">increases</button> while equilibrium quantity <button class="bl" type="button">decreases</button>.</p>
+        <h4>Double Curve Shifts</h4>
+        <p>Happen when two or more factors are involved. Draw one curve shifting and then the other. Don't put in your equilibrium price and quantity until you have shifted both curves. When both curves shift, <b>one of P or Q is always indeterminate</b> (it depends on which shift is bigger).</p>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Demand</th><th>Supply</th><th>Price</th><th>Quantity</th></tr></thead>
+          <tbody>
+            <tr><td>Increase</td><td>Increase</td><td class="q">? indeterminate</td><td class="up">↑ increases</td></tr>
+            <tr><td>Decrease</td><td>Decrease</td><td class="q">? indeterminate</td><td class="dn">↓ decreases</td></tr>
+            <tr><td>Increase</td><td>Decrease</td><td class="up">↑ increases</td><td class="q">? indeterminate</td></tr>
+            <tr><td>Decrease</td><td>Increase</td><td class="dn">↓ decreases</td><td class="q">? indeterminate</td></tr>
+          </tbody>
+        </table></div>
+      </article>
+
+      <article class="gsec">
+        <h3>Price Elasticity of Demand</h3>
+        <p><b>Definition:</b> <button class="bl" type="button">how much quantity demanded responds to a change in price (how sensitive buyers are to price)</button></p>
+        <p><b>Formula:</b> <span class="frac"><span>% change in Quantity Demanded</span><span>% change in Price</span></span> <span class="note">Use the absolute value (ignore the minus sign).</span></p>
+        <h4>Interpreting the Results</h4>
+        <ul>
+          <li>When E is <button class="bl" type="button">less than</button> one, that portion of the demand curve is inelastic.</li>
+          <li>When E is <button class="bl" type="button">greater than</button> one, that portion of the demand curve is elastic.</li>
+          <li>When E is <button class="bl" type="button">equal to</button> one, that portion of the demand curve is unit elastic.</li>
+        </ul>
+        <p>When in the inelastic portion of the demand curve, <button class="bl" type="button">raising</button> price increases total revenue.</p>
+        <p>When in the elastic portion of the demand curve, <button class="bl" type="button">lowering</button> price increases total revenue.</p>
+        <p>When in the unit elastic portion of the demand curve, changing price causes <button class="bl" type="button">no change</button> to total revenue.</p>
+        <h4>Determinants of Elasticity of Demand</h4>
+        <div class="mn">
+          <div><span><button class="bl" type="button">Availability of substitutes</button><small>More substitutes → more elastic</small></span></div>
+          <div><span><button class="bl" type="button">Share of income (portion of budget)</button><small>Bigger share of your budget → more elastic</small></span></div>
+          <div><span><button class="bl" type="button">Necessity vs. luxury</button><small>Necessities → inelastic; luxuries → elastic</small></span></div>
+          <div><span><button class="bl" type="button">Time to adjust</button><small>More time → more elastic</small></span></div>
+        </div>
+        <p><a class="goto" href="#elastic" data-goto="elastic">Drill elasticity problems</a></p>
+      </article>
+
+      <article class="gsec">
+        <h3>Cross Price &amp; Income Elasticity</h3>
+        <h4>Cross Price Elasticity of Demand</h4>
+        <p><b>Formula:</b> <span class="frac"><span>% change in Qd of Product X</span><span>% change in Price of Product Y</span></span></p>
+        <p>If the cross price elasticity of demand is positive, then the product is <button class="bl" type="button">a substitute</button>.</p>
+        <p>If the cross price elasticity of demand is negative, then the product is <button class="bl" type="button">a complement</button>.</p>
+        <p class="note">If it's zero, the goods are unrelated.</p>
+        <h4>Income Elasticity of Demand</h4>
+        <p><b>Formula:</b> <span class="frac"><span>% change in Quantity Demanded</span><span>% change in Income</span></span></p>
+        <p>If income elasticity of demand is positive, then the product is <button class="bl" type="button">a normal good</button>.</p>
+        <p>If income elasticity of demand is negative, then the product is <button class="bl" type="button">an inferior good</button>.</p>
+        <p class="note">Greater than 1 means a luxury (a normal good that's very income-sensitive).</p>
+      </article>
+
+      <article class="gsec">
+        <h3>Price Elasticity of Supply</h3>
+        <p><b>Definition:</b> <button class="bl" type="button">how much quantity supplied responds to a change in price (how easily producers can change output)</button></p>
+        <p><b>Formula:</b> <span class="frac"><span>% change in Quantity Supplied</span><span>% change in Price</span></span></p>
+        <ul>
+          <li>When E is <button class="bl" type="button">less than</button> one, that portion of the supply curve is inelastic.</li>
+          <li>When E is <button class="bl" type="button">greater than</button> one, that portion of the supply curve is elastic.</li>
+          <li>When E is <button class="bl" type="button">equal to</button> one, that portion of the supply curve is unit elastic.</li>
+        </ul>
+        <h4>Determinants of Elasticity of Supply</h4>
+        <div class="mn">
+          <div><span><button class="bl" type="button">Time producers have to adjust</button><small>Long run → more elastic</small></span></div>
+          <div><span><button class="bl" type="button">Availability and flexibility of inputs (and ability to store goods)</button><small>Easy to get resources or store output → more elastic</small></span></div>
+        </div>
+      </article>
+
+      <article class="gsec">
+        <h3>Consumer &amp; Producer Surplus</h3>
+        <h4>Consumer Surplus</h4>
+        <p><button class="bl" type="button">The difference between what buyers are willing to pay and what they actually pay</button></p>
+        <p>Price Buyer is Willing to Pay <button class="bl" type="button">minus ( − )</button> Amount Actually Paid</p>
+        <p><b>The area of Consumer Surplus is the area to the left of the Demand Curve, above equilibrium price and bordered on the left by the Y axis</b> (½ × base × height).</p>
+        <p>How do you reduce Consumer Surplus? <button class="bl" type="button">Raise the price buyers pay (for example a price floor, tax, or tariff)</button></p>
+        <h4>Producer Surplus</h4>
+        <p><button class="bl" type="button">The difference between the price sellers receive and the lowest price they would accept</button></p>
+        <p>Actual Selling Price <button class="bl" type="button">minus ( − )</button> Minimum Amount Seller is Willing to Sell at</p>
+        <p><b>The area of Producer Surplus is the area to the left of the Supply Curve, below equilibrium price and bordered on the left by the Y axis</b> (½ × base × height).</p>
+        <p>How do you reduce Producer Surplus? <button class="bl" type="button">Lower the price sellers receive (for example a price ceiling or a tax)</button></p>
+        <p><a class="goto" href="#graph" data-goto="graph" data-mode="policy">See surplus areas on a live graph</a></p>
+      </article>
+
+      <article class="gsec">
+        <h3>Price Ceilings &amp; Price Floors</h3>
+        <h4>Price Ceilings <span class="note">(a legal maximum price, like rent control)</span></h4>
+        <div class="mn">
+          <div><span><button class="bl" type="button">Shortage (Qd &gt; Qs)</button></span></div>
+          <div><span><button class="bl" type="button">Black markets</button></span></div>
+          <div><span><button class="bl" type="button">Long lines, waiting and rationing</button></span></div>
+          <div><span><button class="bl" type="button">Lower quality and deadweight loss</button></span></div>
+        </div>
+        <p>Effective Price Ceilings are <button class="bl" type="button">below</button> equilibrium price.</p>
+        <p><b>A price ceiling causes Deadweight Loss</b>, which is a triangle with the sides being the actual quantity sold, the demand curve and the supply curve.</p>
+        <h4>Price Floors <span class="note">(a legal minimum price, like the minimum wage)</span></h4>
+        <div class="mn">
+          <div><span><button class="bl" type="button">Surplus (Qs &gt; Qd)</button></span></div>
+          <div><span><button class="bl" type="button">Fewer units actually sold</button></span></div>
+          <div><span><button class="bl" type="button">Wasted resources (government may buy the surplus)</button></span></div>
+          <div><span><button class="bl" type="button">Deadweight loss (with a minimum wage: unemployment)</button></span></div>
+        </div>
+        <p>Effective Price Floors are <button class="bl" type="button">above</button> equilibrium price.</p>
+        <p><b>A price floor causes Deadweight Loss</b>, which is a triangle with the sides being the actual quantity sold, the demand curve and the supply curve.</p>
+        <p><a class="goto" href="#graph" data-goto="graph" data-mode="policy">Sketch ceilings and floors in the Graph Lab</a></p>
+      </article>
+
+      <article class="gsec">
+        <h3>Taxes &amp; Tariffs</h3>
+        <h4>Effects of Taxes</h4>
+        <ul>
+          <li>Taxes cause the <button class="bl" type="button">supply</button> curve to shift to the left.</li>
+          <li>The amount of the tax is the distance between the two supply curves.</li>
+          <li>Taxes cause consumer and producer surplus to <button class="bl" type="button">decrease</button>.</li>
+          <li>Deadweight Loss results from a tax. Taxes are paid by both consumers and producers.</li>
+          <li>If in the inelastic portion of the demand curve, the <button class="bl" type="button">consumers (buyers)</button> have the greater burden of the tax.</li>
+          <li>If in the elastic portion of the demand curve, the <button class="bl" type="button">producers (sellers)</button> have the greater burden of the tax.</li>
+        </ul>
+        <h4>Effects of Tariffs <span class="note">(a tax on imports)</span></h4>
+        <ul>
+          <li>Compared to free trade, tariffs cause equilibrium price to <button class="bl" type="button">increase</button> and equilibrium quantity to <button class="bl" type="button">decrease</button>.</li>
+          <li>Tariffs cause consumer surplus to <button class="bl" type="button">decrease</button> <span class="note">(domestic producer surplus actually increases, but total surplus falls)</span>.</li>
+          <li>Tariffs cause the sales of domestic supply to <button class="bl" type="button">increase</button>, while the quantity of imports will <button class="bl" type="button">decrease</button>.</li>
+          <li>Deadweight Loss results from a tariff.</li>
+        </ul>
+      </article>
+
+      <article class="gsec">
+        <h3>Utility <span class="tag">consumer choice</span></h3>
+        <p><b>Utility is</b> <button class="bl" type="button">the satisfaction or benefit a person gets from consuming a good or service</button></p>
+        <p><b>Total Utility is</b> <button class="bl" type="button">the total satisfaction from all the units consumed</button></p>
+        <p><b>Marginal Utility is</b> <button class="bl" type="button">the additional satisfaction from consuming one more unit (change in TU ÷ change in quantity)</button></p>
+        <p><b>Marginal Utility divided by Price</b> equals how much satisfaction one gets per dollar from the purchase of that product.</p>
+        <p>A buyer will purchase the item that gives them the most marginal utility divided by price and will continue buying as much as they can afford. Utility is maximized when <span class="frac"><span>MU<sub>x</sub></span><span>P<sub>x</sub></span></span> = <span class="frac"><span>MU<sub>y</sub></span><span>P<sub>y</sub></span></span> and the whole budget is spent.</p>
+        <p><b>Law of Diminishing Marginal Utility is</b> <button class="bl" type="button">as you consume more units of a good, the additional satisfaction (marginal utility) from each extra unit decreases</button></p>
+        <p><a class="goto" href="#utility" data-goto="utility">Try the Utility Shopper</a></p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ================= FLASHCARDS ================= -->
+  <section class="panel" id="tab-cards" role="tabpanel" hidden>
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <div style="min-width:0"><h2>Flashcards</h2>
+          <p class="lede">Tap the card to flip it. Mark each one so the deck knows what you still need. Keys: <span class="kbd">Space</span> flip, <span class="kbd">←</span> still learning, <span class="kbd">→</span> got it.</p></div>
+      </div>
+      <div class="row" style="margin-top:12px">
+        <select id="fc-topic" class="btn" aria-label="Topic"></select>
+        <label class="chip"><input type="checkbox" id="fc-hide"> Skip cards I know</label>
+        <button class="btn" id="fc-shuffle" type="button">Shuffle</button>
+        <button class="btn" id="fc-reset" type="button">Reset progress</button>
+      </div>
+    </div>
+    <div class="fc-wrap">
+      <div class="row" style="justify-content:space-between"><span class="mono muted" id="fc-pos"></span><span class="mono muted" id="fc-known"></span></div>
+      <div class="meter"><i id="fc-meter"></i></div>
+      <div id="fc-area">
+        <div class="fc" id="fc" tabindex="0" role="button" aria-label="Flip card">
+          <div class="fc-in">
+            <div class="fc-face fc-front"><span class="fc-know" id="fc-badge" hidden>KNOWN</span><span class="fc-topic" id="fc-t"></span><div class="fc-term" id="fc-term"></div><span class="muted" style="font-size:13px">tap to flip</span></div>
+            <div class="fc-face fc-back"><span class="fc-topic" id="fc-t2"></span><div class="fc-def" id="fc-def"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-done card done" id="fc-done" hidden>
+        <h2>Round complete</h2>
+        <p class="muted" id="fc-done-msg" style="margin:0"></p>
+        <div class="row" style="justify-content:center">
+          <button class="btn primary" id="fc-learn" type="button">Review cards I'm still learning</button>
+          <button class="btn" id="fc-again-all" type="button">Go through all again</button>
+        </div>
+      </div>
+      <div class="fc-actions" id="fc-actions">
+        <button class="btn again" id="fc-no" type="button">← Still learning</button>
+        <button class="btn got" id="fc-yes" type="button">Got it →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section class="panel" id="tab-quiz" role="tabpanel" hidden>
+    <div class="card" id="qz-setup">
+      <h2>Practice test</h2>
+      <p class="lede">AP-style multiple choice with an explanation after every answer. Pick topics and a length.</p>
+      <div style="margin-top:16px"><span class="lab">Topics</span><div class="chips" id="qz-topics"></div></div>
+      <div class="row" style="margin-top:16px">
+        <span class="lab" style="margin:0">Length</span>
+        <div class="seg" id="qz-len">
+          <button type="button" data-n="10" aria-pressed="true">10</button>
+          <button type="button" data-n="20" aria-pressed="false">20</button>
+          <button type="button" data-n="999" aria-pressed="false">All</button>
+        </div>
+        <button class="btn primary" id="qz-start" type="button">Start test</button>
+        <span class="muted" id="qz-avail" style="font-size:13px"></span>
+      </div>
+    </div>
+    <div class="card" id="qz-run" hidden>
+      <div class="qhead"><span id="qz-pos"></span><span id="qz-score"></span></div>
+      <div class="meter" style="margin-top:8px"><i id="qz-meter" style="background:var(--accent)"></i></div>
+      <div class="pill" id="qz-topic"></div>
+      <div class="qtext" id="qz-q"></div>
+      <div class="opts" id="qz-opts"></div>
+      <div class="explain" id="qz-exp" hidden></div>
+      <div class="row" style="margin-top:14px;justify-content:space-between">
+        <button class="btn" id="qz-quit" type="button">End test</button>
+        <button class="btn primary" id="qz-next" type="button" hidden>Next question</button>
+      </div>
+    </div>
+    <div class="card" id="qz-res" hidden>
+      <div class="row" style="gap:24px;align-items:center">
+        <div class="big" id="qz-pct"></div>
+        <div><h2 id="qz-verdict"></h2><p class="muted" id="qz-raw" style="margin:4px 0 0"></p></div>
+      </div>
+      <div class="tbl-wrap" style="margin-top:16px"><table id="qz-break"></table></div>
+      <div id="qz-missed-wrap"><h3 style="margin-top:18px;font-size:17px">Review what you missed</h3><div class="missed" id="qz-missed"></div></div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn primary" id="qz-retry" type="button">Retry the ones I missed</button>
+        <button class="btn" id="qz-new" type="button">New test</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= GRAPH LAB ================= -->
+  <section class="panel" id="tab-graph" role="tabpanel" hidden>
+    <div class="card row" style="justify-content:space-between">
+      <div style="min-width:0"><h2>Graph Lab</h2><p class="lede">Predict shifts from real scenarios, move the curves yourself, or add a price ceiling, price floor or tax and watch surplus and deadweight loss change.</p></div>
+      <div class="seg" id="gr-mode">
+        <button type="button" data-m="predict" aria-pressed="true">Predict the shift</button>
+        <button type="button" data-m="explore" aria-pressed="false">Move the curves</button>
+        <button type="button" data-m="policy" aria-pressed="false">Ceilings, floors &amp; taxes</button>
+      </div>
+    </div>
+    <div class="bench">
+      <div class="card ctl">
+        <!-- predict -->
+        <div id="m-predict" class="ctl">
+          <div class="scen"><span class="lab">Market</span><div class="mk" id="pr-market"></div><p id="pr-event"></p></div>
+          <div><span class="lab">1 · Which curve shifts?</span><div class="choice" data-g="curve">
+            <button type="button" data-v="D">Demand</button><button type="button" data-v="S">Supply</button><button type="button" data-v="N">Neither (movement along a curve)</button></div></div>
+          <div><span class="lab">2 · Which direction?</span><div class="choice" data-g="dir">
+            <button type="button" data-v="1">Increase (right)</button><button type="button" data-v="-1">Decrease (left)</button></div></div>
+          <div><span class="lab">3 · Equilibrium price</span><div class="choice" data-g="p">
+            <button type="button" data-v="1">Rises ↑</button><button type="button" data-v="-1">Falls ↓</button></div></div>
+          <div><span class="lab">4 · Equilibrium quantity</span><div class="choice" data-g="q">
+            <button type="button" data-v="1">Rises ↑</button><button type="button" data-v="-1">Falls ↓</button></div></div>
+          <div class="row"><button class="btn primary" id="pr-check" type="button" disabled>Check answer</button><button class="btn" id="pr-next" type="button" hidden>Next scenario</button><span class="mono muted" id="pr-score" style="font-size:13px"></span></div>
+          <div class="fb" id="pr-fb" hidden></div>
+        </div>
+        <!-- explore -->
+        <div id="m-explore" class="ctl" hidden>
+          <p style="margin:0">Shift one curve, then the other. The dashed curves are where you started. Watch which of P and Q you could predict from directions alone.</p>
+          <div class="shiftpad">
+            <span class="nm" style="color:var(--demand)">Demand</span><div class="row"><button class="btn" data-sh="D" data-v="-1" type="button">← Decrease</button><button class="btn" data-sh="D" data-v="1" type="button">Increase →</button></div>
+            <span class="nm" style="color:var(--supply)">Supply</span><div class="row"><button class="btn" data-sh="S" data-v="-1" type="button">← Decrease</button><button class="btn" data-sh="S" data-v="1" type="button">Increase →</button></div>
+          </div>
+          <div class="row"><button class="btn" id="ex-reset" type="button">Reset curves</button></div>
+          <div class="fb" id="ex-out"></div>
+        </div>
+        <!-- policy -->
+        <div id="m-policy" class="ctl" hidden>
+          <div><span class="lab">Government policy</span><div class="seg" id="po-type">
+            <button type="button" data-p="none" aria-pressed="true">None</button>
+            <button type="button" data-p="ceiling" aria-pressed="false">Price ceiling</button>
+            <button type="button" data-p="floor" aria-pressed="false">Price floor</button>
+            <button type="button" data-p="tax" aria-pressed="false">Per-unit tax</button></div></div>
+          <div id="po-lvl-wrap" hidden><label class="lab" for="po-lvl" id="po-lvl-lab">Level</label><input type="range" id="po-lvl" min="0" max="10" step="0.25" value="3.5"></div>
+          <div><label class="lab" for="po-b">Demand: elastic (flat) ↔ inelastic (steep)</label><input type="range" id="po-b" min="0.35" max="2.5" step="0.05" value="0.8"></div>
+          <div><label class="lab" for="po-d">Supply: elastic (flat) ↔ inelastic (steep)</label><input type="range" id="po-d" min="0.35" max="1" step="0.05" value="0.8"></div>
+          <div class="read" id="po-read"></div>
+          <div class="fb" id="po-note"></div>
+        </div>
+      </div>
+      <div class="fig">
+        <svg id="gsvg" viewBox="0 0 480 380" role="img" aria-label="Supply and demand graph"></svg>
+        <div class="legend" id="gleg"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= ELASTICITY ================= -->
+  <section class="panel" id="tab-elastic" role="tabpanel" hidden>
+    <div class="split">
+      <div class="card ctl">
+        <div class="row" style="justify-content:space-between"><h2>Elasticity drill</h2><span class="pill" id="el-kind" style="margin:0"></span></div>
+        <p class="prob" id="el-prob"></p>
+        <div><span class="lab">Formula</span><span class="frac" id="el-frac" style="margin:0"></span></div>
+        <div><label class="lab" for="el-num">1 · Compute the coefficient</label>
+          <div class="numin"><input id="el-num" inputmode="decimal" autocomplete="off" placeholder="e.g. 1.5"><span class="muted" id="el-numhint" style="font-size:13px"></span></div></div>
+        <div><span class="lab">2 · Classify it</span><div class="choice" id="el-cls"></div></div>
+        <div id="el-tr-wrap"><span class="lab">3 · To increase total revenue, the firm should…</span><div class="choice" id="el-tr">
+          <button type="button" data-v="raise">Raise the price</button><button type="button" data-v="lower">Lower the price</button><button type="button" data-v="none">Neither (TR won't change)</button></div></div>
+        <div class="row"><button class="btn primary" id="el-check" type="button">Check</button><button class="btn" id="el-next" type="button" hidden>Next problem</button><span class="mono muted" id="el-score" style="font-size:13px"></span></div>
+        <div class="fb" id="el-fb" hidden></div>
+      </div>
+      <div class="card">
+        <h2 style="font-size:18px">Cheat sheet</h2>
+        <div class="tbl-wrap" style="margin-top:10px"><table class="cheat">
+          <thead><tr><th>|E|</th><th>Demand is</th><th>Raise price → TR</th></tr></thead>
+          <tbody>
+            <tr><td class="mono">&gt; 1</td><td>Elastic</td><td class="dn">falls</td></tr>
+            <tr><td class="mono">&lt; 1</td><td>Inelastic</td><td class="up">rises</td></tr>
+            <tr><td class="mono">= 1</td><td>Unit elastic</td><td>no change</td></tr>
+            <tr><td class="mono">0</td><td>Perfectly inelastic (vertical)</td><td class="up">rises</td></tr>
+            <tr><td class="mono">∞</td><td>Perfectly elastic (horizontal)</td><td class="dn">drops to 0</td></tr>
+          </tbody></table></div>
+        <div class="tbl-wrap" style="margin-top:14px"><table class="cheat">
+          <thead><tr><th>Type</th><th>Sign</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td>Cross-price</td><td class="mono">+</td><td>Substitutes</td></tr>
+            <tr><td>Cross-price</td><td class="mono">−</td><td>Complements</td></tr>
+            <tr><td>Income</td><td class="mono">+</td><td>Normal good (&gt;1 luxury)</td></tr>
+            <tr><td>Income</td><td class="mono">−</td><td>Inferior good</td></tr>
+          </tbody></table></div>
+        <p class="note" style="margin-top:12px">Trick for TR: under <b>in</b>elastic demand, price and total revenue move <b>in</b> the same direction.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= UTILITY ================= -->
+  <section class="panel" id="tab-utility" role="tabpanel" hidden>
+    <div class="card row" style="justify-content:space-between">
+      <div style="min-width:0"><h2>Utility Shopper</h2><p class="lede">Spend the budget one unit at a time. Each pick should be the good with the highest marginal utility per dollar (MU ÷ P) that you can still afford.</p></div>
+      <div class="row"><select class="btn" id="ut-scn" aria-label="Scenario"></select><button class="btn" id="ut-reset" type="button">Start over</button></div>
+    </div>
+    <div class="split">
+      <div class="card">
+        <div class="row" style="justify-content:space-between"><span class="lab" style="margin:0">Marginal utility table</span><label class="chip"><input type="checkbox" id="ut-hide"> Hide MU ÷ P (do the math yourself)</label></div>
+        <div class="tbl-wrap" style="margin-top:10px"><table class="ut" id="ut-table"></table></div>
+        <p class="note">Dashed box = the next unit you could buy of each good. Green = already bought.</p>
+      </div>
+      <div class="card ctl">
+        <div class="read" id="ut-read"></div>
+        <div class="row" id="ut-buy"></div>
+        <div class="fb" id="ut-fb"></div>
+        <div><span class="lab">Your choices</span><div class="log" id="ut-log"></div></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const store={get(k,d){try{const v=localStorage.getItem('apmu2:'+k);return v==null?d:JSON.parse(v)}catch(e){return d}},set(k,v){try{localStorage.setItem('apmu2:'+k,JSON.stringify(v))}catch(e){}}};
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const fmt=n=>(Math.round(n*100)/100).toString();
+const money=n=>'$'+n.toFixed(2);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- stats ---------------- */
+const stats=Object.assign({pred:[0,0],el:[0,0],best:null},store.get('stats',{}));
+function saveStats(){store.set('stats',stats);paintStats()}
+function paintStats(){
+  $('#st-cards').textContent=fcKnown.size+'/'+CARDS.length;
+  $('#st-quiz').textContent=stats.best==null?'—':stats.best+'%';
+  $('#st-pred').textContent=stats.pred[0]+'/'+stats.pred[1];
+  $('#st-el').textContent=stats.el[0]+'/'+stats.el[1];
+}
+
+/* ---------------- tabs ---------------- */
+const TABS=['guide','cards','quiz','graph','elastic','utility'];
+function showTab(id){
+  if(!TABS.includes(id))id='guide';
+  $$('.tab').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===id?'true':'false'));
+  $$('.panel').forEach(p=>p.hidden=p.id!=='tab-'+id);
+  store.set('tab',id);
+  if(id==='graph')drawGraph();
+}
+$$('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+document.addEventListener('click',e=>{
+  const g=e.target.closest('[data-goto]'); if(!g)return;
+  e.preventDefault(); showTab(g.dataset.goto); if(g.dataset.mode)setGraphMode(g.dataset.mode);
+  window.scrollTo({top:0,behavior:reduceMotion?'auto':'smooth'});
+});
+
+/* ---------------- study guide ---------------- */
+const guide=$('#guide'), blanks=$$('.bl',guide);
+function gCount(){const on=blanks.filter(b=>b.classList.contains('on')).length;$('#g-count').textContent=on+' / '+blanks.length+' revealed'}
+function setGuideMode(m){
+  guide.classList.toggle('practice',m==='practice');
+  $$('#g-mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false'));
+  $('#g-tools').hidden=m!=='practice';
+  blanks.forEach(b=>{b.classList.remove('on');b.tabIndex=m==='practice'?0:-1;b.setAttribute('aria-label',m==='practice'?'Hidden answer, press to reveal':b.textContent)});
+  gCount(); store.set('gmode',m);
+}
+$$('#g-mode button').forEach(b=>b.addEventListener('click',()=>setGuideMode(b.dataset.m)));
+guide.addEventListener('click',e=>{const b=e.target.closest('.bl');if(!b||!guide.classList.contains('practice'))return;b.classList.toggle('on');b.setAttribute('aria-label',b.classList.contains('on')?b.textContent:'Hidden answer, press to reveal');gCount()});
+$('#g-all').addEventListener('click',()=>{blanks.forEach(b=>b.classList.add('on'));gCount()});
+$('#g-none').addEventListener('click',()=>{blanks.forEach(b=>b.classList.remove('on'));gCount()});
+setGuideMode(store.get('gmode','answers'));
+
+/* ---------------- flashcards ---------------- */
+const CARDS=[
+ ['Law of Demand','As price rises, quantity demanded falls (and vice versa). Price and quantity demanded have an inverse relationship, ceteris paribus.','Demand'],
+ ['Demand vs. quantity demanded','A change in the good’s own price changes quantity demanded (a movement along the curve). A change in a SPPICE factor changes demand (shifts the whole curve).','Demand'],
+ ['SPPICE','The demand shifters: Substitutes’ prices, Preferences, Price of complements, Income, Consumers (number of buyers), Expectations.','Demand'],
+ ['Substitutes','Goods used in place of each other (Coke and Pepsi). If the price of one rises, demand for the other increases.','Demand'],
+ ['Complements','Goods used together (hot dogs and buns). If the price of one rises, demand for the other decreases.','Demand'],
+ ['Normal good','A good you buy more of when income rises (restaurant meals, new cars). Income elasticity is positive.','Demand'],
+ ['Inferior good','A good you buy less of when income rises (ramen, bus rides, used cars). Income elasticity is negative.','Demand'],
+ ['Income effect','A lower price raises your real purchasing power, so you can buy more. One reason demand slopes down.','Demand'],
+ ['Substitution effect','A lower price makes the good cheaper relative to substitutes, so buyers switch toward it. One reason demand slopes down.','Demand'],
+ ['Ceteris paribus','“All other things held constant.” The laws of supply and demand assume nothing else changes.','Demand'],
+ ['Law of Supply','As price rises, quantity supplied rises (and vice versa). A direct relationship, ceteris paribus.','Supply'],
+ ['Supply vs. quantity supplied','A change in the good’s own price changes quantity supplied (movement along the curve). A ROTTEN factor shifts the whole supply curve.','Supply'],
+ ['ROTTEN','The supply shifters: Resource costs, Other goods’ prices, Taxes & subsidies, Technology, Expectations of producers, Number of sellers.','Supply'],
+ ['Subsidy','A government payment to producers. It lowers their costs and shifts supply to the right.','Supply'],
+ ['Why supply slopes upward','Increasing marginal cost: each extra unit costs more to make, so producers need a higher price to supply more.','Supply'],
+ ['Equilibrium','The price and quantity where Qd = Qs. The market clears with no shortage or surplus.','Equilibrium'],
+ ['Shortage','Qd > Qs. Happens when price is below equilibrium (for example under a binding price ceiling). Price tends to rise.','Equilibrium'],
+ ['Surplus (excess supply)','Qs > Qd. Happens when price is above equilibrium (for example under a binding price floor). Price tends to fall.','Equilibrium'],
+ ['Double shift rule','When both curves shift, either price or quantity is indeterminate. D↑ S↑: Q↑, P?  D↑ S↓: P↑, Q?','Equilibrium'],
+ ['Price elasticity of demand','How much quantity demanded responds to a price change. E = %ΔQd ÷ %ΔP (use the absolute value).','Elasticity'],
+ ['Elastic demand','|E| > 1. Buyers are price sensitive. Raising price lowers total revenue; lowering price raises it.','Elasticity'],
+ ['Inelastic demand','|E| < 1. Buyers are not very price sensitive. Raising price raises total revenue.','Elasticity'],
+ ['Unit elastic','|E| = 1. The % change in quantity equals the % change in price, so total revenue does not change.','Elasticity'],
+ ['Perfectly inelastic demand','E = 0. A vertical demand curve: quantity doesn’t change at all (life-saving medicine). Buyers pay the whole tax.','Elasticity'],
+ ['Perfectly elastic demand','E = ∞. A horizontal demand curve: any price increase drops quantity demanded to zero.','Elasticity'],
+ ['Total revenue test','TR = P × Q. If price and TR move in the same direction, demand is inelastic. If opposite directions, demand is elastic.','Elasticity'],
+ ['Determinants of demand elasticity','Availability of substitutes, share of income spent, necessity vs. luxury, and time to adjust. More of each (except necessity) makes demand more elastic.','Elasticity'],
+ ['Cross-price elasticity','%ΔQd of X ÷ %ΔP of Y. Positive = substitutes; negative = complements; zero = unrelated.','Elasticity'],
+ ['Income elasticity','%ΔQd ÷ %ΔIncome. Positive = normal good (above 1 = luxury); negative = inferior good.','Elasticity'],
+ ['Price elasticity of supply','%ΔQs ÷ %ΔP. How easily producers can change output when price changes.','Elasticity'],
+ ['Determinants of supply elasticity','Time to adjust (long run is more elastic) and availability/flexibility of inputs, including ability to store goods.','Elasticity'],
+ ['Consumer surplus','Willingness to pay minus price actually paid. On a graph: the area below demand, above price, and right of the y-axis.','Surplus'],
+ ['Producer surplus','Price received minus the minimum price the seller would accept. On a graph: the area above supply, below price, and right of the y-axis.','Surplus'],
+ ['Total surplus','Consumer surplus + producer surplus. It is largest at the free-market equilibrium.','Surplus'],
+ ['Deadweight loss','Lost total surplus from trades that would have helped both sides but no longer happen. A triangle between D and S from the quantity actually sold to the equilibrium quantity.','Surplus'],
+ ['Price ceiling','A legal maximum price. Binding only if set below equilibrium. Causes shortages, black markets, lines, lower quality and deadweight loss. Example: rent control.','Government'],
+ ['Price floor','A legal minimum price. Binding only if set above equilibrium. Causes surpluses, fewer units sold and deadweight loss. Example: minimum wage (surplus of labor = unemployment).','Government'],
+ ['Per-unit (excise) tax','Shifts supply left (up) by the amount of the tax. Buyers pay more, sellers keep less, quantity falls, CS and PS shrink, deadweight loss appears.','Government'],
+ ['Tax incidence','Who really pays the tax. The more inelastic side of the market bears more of the burden. Inelastic demand → consumers pay more.','Government'],
+ ['Tariff','A tax on imports. Raises the domestic price, lowers quantity consumed, increases domestic production, decreases imports, lowers consumer surplus and causes deadweight loss.','Government'],
+ ['Utility','The satisfaction or benefit you get from consuming a good or service.','Utility'],
+ ['Total utility','The total satisfaction from all units consumed. It keeps rising as long as marginal utility is positive.','Utility'],
+ ['Marginal utility','The additional satisfaction from one more unit: MU = ΔTU ÷ ΔQ.','Utility'],
+ ['Law of diminishing marginal utility','As you consume more of a good, each additional unit gives you less extra satisfaction than the one before.','Utility'],
+ ['Utility-maximizing rule','Spend your whole budget so that MUx/Px = MUy/Py. Always buy next whichever good gives the most MU per dollar.','Utility'],
+];
+let fcKnown=new Set(store.get('known',[]).filter(t=>CARDS.some(c=>c[0]===t)));
+let fcDeck=[],fcI=0;
+const topics=[...new Set(CARDS.map(c=>c[2]))];
+$('#fc-topic').innerHTML='<option value="all">All topics ('+CARDS.length+')</option>'+topics.map(t=>`<option value="${t}">${t} (${CARDS.filter(c=>c[2]===t).length})</option>`).join('');
+function fcBuild(shuf,onlyLearning){
+  const t=$('#fc-topic').value, hide=onlyLearning||$('#fc-hide').checked;
+  let d=CARDS.map((c,i)=>i).filter(i=>(t==='all'||CARDS[i][2]===t)&&!(hide&&fcKnown.has(CARDS[i][0])));
+  if(shuf)d=shuffle(d); fcDeck=d; fcI=0; fcShow();
+}
+function fcShow(){
+  $('#fc').classList.remove('flip');
+  const done=fcI>=fcDeck.length;
+  $('#fc-area').hidden=done; $('#fc-actions').hidden=done; $('#fc-done').hidden=!done;
+  const pool=CARDS.filter(c=>$('#fc-topic').value==='all'||c[2]===$('#fc-topic').value);
+  const k=pool.filter(c=>fcKnown.has(c[0])).length;
+  $('#fc-known').textContent=k+' of '+pool.length+' known';
+  $('#fc-meter').style.width=(pool.length?k/pool.length*100:0)+'%';
+  if(done){
+    $('#fc-pos').textContent='';
+    $('#fc-done-msg').textContent=fcDeck.length?`You know ${k} of ${pool.length} cards in this set.`:'You’ve marked every card in this set as known. Nice work.';
+    $('#fc-learn').hidden=k===pool.length; return;
+  }
+  const c=CARDS[fcDeck[fcI]];
+  $('#fc-pos').textContent='Card '+(fcI+1)+' of '+fcDeck.length;
+  $('#fc-t').textContent=c[2]; $('#fc-t2').textContent=c[0];
+  $('#fc-term').textContent=c[0]; $('#fc-def').textContent=c[1];
+  $('#fc-badge').hidden=!fcKnown.has(c[0]);
+}
+function fcMark(ok){
+  if(fcI>=fcDeck.length)return;
+  const t=CARDS[fcDeck[fcI]][0]; ok?fcKnown.add(t):fcKnown.delete(t);
+  store.set('known',[...fcKnown]); paintStats(); fcI++; fcShow();
+}
+const fcFlip=()=>$('#fc').classList.toggle('flip');
+$('#fc').addEventListener('click',fcFlip);
+$('#fc').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();fcFlip()}});
+$('#fc-yes').addEventListener('click',()=>fcMark(true));
+$('#fc-no').addEventListener('click',()=>fcMark(false));
+$('#fc-topic').addEventListener('change',()=>fcBuild(false));
+$('#fc-hide').addEventListener('change',()=>fcBuild(false));
+$('#fc-shuffle').addEventListener('click',()=>fcBuild(true));
+$('#fc-reset').addEventListener('click',()=>{fcKnown.clear();store.set('known',[]);paintStats();fcBuild(false)});
+$('#fc-learn').addEventListener('click',()=>fcBuild(true,true));
+$('#fc-again-all').addEventListener('click',()=>{$('#fc-hide').checked=false;fcBuild(true)});
+document.addEventListener('keydown',e=>{
+  if($('#tab-cards').hidden||e.target.matches('input,select,textarea'))return;
+  if(e.key===' '){if(e.target.matches('button'))return;e.preventDefault();fcFlip()} else if(e.key==='ArrowRight')fcMark(true); else if(e.key==='ArrowLeft')fcMark(false);
+});
+
+/* ---------------- quiz ---------------- */
+// o[0] is the correct answer; options are shuffled at display time
+const QS=[
+ {t:'Demand',q:'According to the law of demand, an increase in the price of a good, ceteris paribus, causes',o:['a decrease in quantity demanded','a decrease in demand','an increase in supply','an increase in quantity demanded'],e:'A change in the good’s own price moves you along the demand curve. That is a change in quantity demanded, not a shift in demand.'},
+ {t:'Demand',q:'Which of the following would shift the demand for coffee to the right?',o:['An increase in the price of tea','A decrease in the price of coffee','An increase in the price of coffee creamer','A new technology that lowers the cost of roasting coffee'],e:'Tea is a substitute. When tea gets pricier, people switch to coffee, so demand for coffee increases. Creamer is a complement (its price rising lowers coffee demand), and roasting technology shifts supply.'},
+ {t:'Demand',q:'When incomes fall, the demand for bus rides increases. Bus rides are',o:['an inferior good','a normal good','a luxury good','a complement to cars'],e:'Demand moving opposite to income is the definition of an inferior good.'},
+ {t:'Demand',q:'Which is NOT a reason the demand curve slopes downward?',o:['Increasing marginal cost','The income effect','The substitution effect','Diminishing marginal utility'],e:'Increasing marginal cost explains why supply slopes upward. The other three explain downward-sloping demand.'},
+ {t:'Demand',q:'Consumers expect the price of new phones to drop sharply next month. What happens to demand for phones this month?',o:['It decreases (shifts left)','It increases (shifts right)','Quantity demanded falls but demand is unchanged','Nothing happens until the price actually changes'],e:'Expectations (the E in SPPICE). If buyers expect a lower price later, they wait, so demand today decreases.'},
+ {t:'Supply',q:'Which of the following would decrease the supply of laptops?',o:['Higher wages for workers who assemble laptops','Cheaper computer chips','More firms entering the laptop market','A government subsidy for laptop makers'],e:'Higher input costs (the R in ROTTEN) make production more expensive, shifting supply left. The others increase supply.'},
+ {t:'Supply',q:'An increase in the price of laptops will cause',o:['an increase in the quantity supplied of laptops','an increase in the supply of laptops','a decrease in the supply of laptops','a decrease in the quantity supplied of laptops'],e:'A change in the good’s own price is a movement along the supply curve: quantity supplied rises.'},
+ {t:'Supply',q:'Farmers can grow either corn or soybeans on the same land. If the price of soybeans rises, the supply of corn will',o:['decrease','increase','stay the same, but quantity supplied of corn falls','stay the same, but demand for corn rises'],e:'“Other goods’ prices” (the O in ROTTEN). Soybeans are now more profitable, so farmers switch land away from corn and corn supply shifts left.'},
+ {t:'Equilibrium',q:'If the market price is above the equilibrium price, there will be a',o:['surplus, and price will tend to fall','shortage, and price will tend to rise','surplus, and price will tend to rise','shortage, and price will tend to fall'],e:'Above equilibrium, Qs > Qd. Sellers have unsold goods and cut prices.'},
+ {t:'Equilibrium',q:'At the current price, quantity demanded is 120 units and quantity supplied is 80 units. The market has',o:['a shortage of 40 units, and price will rise','a surplus of 40 units, and price will fall','a shortage of 40 units, and price will fall','a surplus of 200 units, and price will fall'],e:'Qd − Qs = 40 > 0, a shortage. Buyers compete for scarce goods and bid the price up.'},
+ {t:'Equilibrium',q:'Demand increases while supply stays the same. Equilibrium price and quantity will',o:['both increase','both decrease','price increases, quantity decreases','price decreases, quantity increases'],e:'Demand shifts right along an unchanged supply curve: P↑ and Q↑.'},
+ {t:'Equilibrium',q:'Supply increases while demand stays the same. Equilibrium price and quantity will',o:['price decreases, quantity increases','both increase','price increases, quantity decreases','both decrease'],e:'Supply shifts right along an unchanged demand curve: P↓ and Q↑.'},
+ {t:'Equilibrium',q:'Demand increases and supply decreases at the same time. Which must be true?',o:['Price rises; the change in quantity is indeterminate','Quantity rises; the change in price is indeterminate','Price falls; quantity rises','Both price and quantity rise'],e:'Both shifts push price up. Demand pushes quantity up while supply pushes it down, so quantity depends on which shift is larger.'},
+ {t:'Equilibrium',q:'Demand decreases and supply increases at the same time. Which must be true?',o:['Price falls; the change in quantity is indeterminate','Quantity falls; the change in price is indeterminate','Price rises; quantity is indeterminate','Both price and quantity fall'],e:'Both shifts push price down. Their effects on quantity work against each other.'},
+ {t:'Equilibrium',q:'Both demand and supply increase. Which must be true?',o:['Quantity rises; the change in price is indeterminate','Price rises; the change in quantity is indeterminate','Both price and quantity rise','Price falls and quantity rises'],e:'Both shifts push quantity up. Demand pushes price up, supply pushes price down, so price is indeterminate.'},
+ {t:'Elasticity',q:'The price of a good rises by 10% and quantity demanded falls by 30%. The price elasticity of demand is',o:['3, so demand is elastic','0.33, so demand is inelastic','3, so demand is inelastic','0.33, so demand is elastic'],e:'E = 30% ÷ 10% = 3. Since 3 > 1, demand is elastic.'},
+ {t:'Elasticity',q:'Demand for a product is inelastic. If the firm raises its price, total revenue will',o:['increase','decrease','stay the same','fall to zero'],e:'Inelastic: quantity falls by a smaller percentage than price rises, so P × Q goes up. Price and TR move in the same direction.'},
+ {t:'Elasticity',q:'Which good most likely has the most inelastic demand?',o:['Insulin for a diabetic','One specific brand of cereal','A vacation cruise','Pepsi'],e:'Insulin is a necessity with no close substitutes. The others have many substitutes or are luxuries.'},
+ {t:'Elasticity',q:'Which would make the demand for a good MORE elastic?',o:['It has many close substitutes','It is a necessity','It takes up a tiny share of the buyer’s income','Buyers have very little time to adjust'],e:'More substitutes means buyers can easily switch away when the price rises.'},
+ {t:'Elasticity',q:'A theater lowers ticket prices from $12 to $10 and its total revenue falls. Demand for tickets in this range is',o:['inelastic','elastic','unit elastic','perfectly elastic'],e:'Price fell and TR fell, so they moved in the same direction. That is the sign of inelastic demand.'},
+ {t:'Elasticity',q:'The cross-price elasticity of demand between goods X and Y is −1.5. X and Y are',o:['complements','substitutes','inferior goods','unrelated'],e:'A negative cross-price elasticity means a higher price for Y lowers demand for X. They are used together.'},
+ {t:'Elasticity',q:'A good has an income elasticity of demand of +2.0. It is',o:['a normal good (a luxury)','an inferior good','a complement','perfectly inelastic'],e:'Positive income elasticity = normal good. Greater than 1 means it is income-sensitive, which we call a luxury.'},
+ {t:'Elasticity',q:'The supply of a product tends to be more elastic',o:['in the long run, when producers have more time to adjust','in the short run','when inputs are very hard to obtain','when the product cannot be stored'],e:'More time lets firms hire workers, build capacity and enter the market, so quantity supplied responds more.'},
+ {t:'Surplus',q:'Maria is willing to pay $50 for a concert ticket and buys it for $35. Her consumer surplus is',o:['$15','$35','$50','$85'],e:'Consumer surplus = willingness to pay − price paid = $50 − $35 = $15.'},
+ {t:'Surplus',q:'A seller would accept as little as $20 for a bike but sells it for $32. The producer surplus is',o:['$12','$20','$32','$52'],e:'Producer surplus = price received − minimum acceptable price = $32 − $20 = $12.'},
+ {t:'Surplus',q:'Demand meets the price axis at $10. Equilibrium price is $4 and equilibrium quantity is 30. Consumer surplus is',o:['$90','$180','$60','$120'],e:'CS triangle: ½ × base × height = ½ × 30 × ($10 − $4) = $90.'},
+ {t:'Government',q:'An effective (binding) price ceiling is set',o:['below equilibrium and creates a shortage','above equilibrium and creates a surplus','below equilibrium and creates a surplus','above equilibrium and creates a shortage'],e:'A ceiling only matters if it holds price below where the market would settle. At that low price, Qd > Qs.'},
+ {t:'Government',q:'A minimum wage set above the equilibrium wage will most likely cause',o:['a surplus of labor (unemployment)','a shortage of labor','no change in employment','an increase in the quantity of labor demanded'],e:'A minimum wage is a price floor in the labor market. More people want to work than firms want to hire.'},
+ {t:'Government',q:'A price ceiling is set above the equilibrium price. What happens?',o:['Nothing; the ceiling is not binding','A shortage develops','A surplus develops','Deadweight loss appears'],e:'The market can already reach equilibrium below the ceiling, so the ceiling has no effect.'},
+ {t:'Government',q:'A per-unit tax on sellers will cause',o:['supply to shift left, the price buyers pay to rise, and quantity to fall','demand to shift left and price to fall','supply to shift right and quantity to rise','no change in quantity, only in price'],e:'The tax raises sellers’ costs by the tax amount, shifting supply left (up). Buyers pay more and fewer units are sold.'},
+ {t:'Government',q:'If demand is perfectly inelastic, the burden of a per-unit tax falls',o:['entirely on consumers','entirely on producers','equally on consumers and producers','on the government'],e:'Buyers will buy the same amount no matter what, so sellers can pass the whole tax on.'},
+ {t:'Government',q:'Which is a result of an excise (per-unit) tax?',o:['Deadweight loss','An increase in consumer surplus','An increase in producer surplus','An increase in the quantity sold'],e:'The tax blocks some mutually beneficial trades, creating deadweight loss. CS and PS both shrink.'},
+ {t:'Government',q:'Compared to free trade, a tariff on imported steel will',o:['raise the domestic price, increase domestic production and decrease imports','lower the domestic price and increase imports','raise consumer surplus','eliminate deadweight loss'],e:'A tariff makes imports pricier. Domestic producers sell more at the higher price, imports fall, and consumers lose surplus.'},
+ {t:'Government',q:'Demand for a good is very elastic. Who bears most of the burden of a tax on it?',o:['Producers','Consumers','The government','It is always split 50/50'],e:'With elastic demand, buyers flee if the price rises, so sellers must absorb most of the tax.'},
+ {t:'Utility',q:'Marginal utility is',o:['the additional satisfaction from consuming one more unit','the total satisfaction from all units consumed','the price of one more unit','satisfaction per dollar spent'],e:'Marginal means “one more.” MU = ΔTU ÷ ΔQ.'},
+ {t:'Utility',q:'Total utility from slices of pizza is 10, 18, 24, 28 for 1, 2, 3, 4 slices. The marginal utility of the 3rd slice is',o:['6','24','8','4'],e:'MU of the 3rd slice = TU(3) − TU(2) = 24 − 18 = 6.'},
+ {t:'Utility',q:'For the last units bought, good A has MU = 30 and price $3; good B has MU = 24 and price $2. To increase total utility, the consumer should buy',o:['more B and less A','more A and less B','the same amounts; utility is maximized','more of both, ignoring the budget'],e:'MU/P for A = 30/3 = 10. For B = 24/2 = 12. B gives more satisfaction per dollar.'},
+ {t:'Utility',q:'A consumer maximizes utility when',o:['MUx/Px = MUy/Py and the budget is fully spent','MUx = MUy','total utility from each good is equal','the consumer buys equal quantities of each good'],e:'This is the utility-maximizing rule: equal marginal utility per dollar across goods, with all income spent.'},
+ {t:'Utility',q:'The law of diminishing marginal utility states that',o:['each additional unit consumed adds less satisfaction than the one before','total utility falls as you consume more','price falls as you buy more','marginal utility rises with each unit'],e:'Your 5th slice of pizza is less satisfying than your 1st. Total utility can still rise, just more slowly.'},
+];
+const QT=[...new Set(QS.map(q=>q.t))];
+$('#qz-topics').innerHTML=QT.map(t=>`<label class="chip"><input type="checkbox" value="${t}" checked> ${t}</label>`).join('');
+let qzLen=10, qz=null;
+$$('#qz-len button').forEach(b=>b.addEventListener('click',()=>{qzLen=+b.dataset.n;$$('#qz-len button').forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));qzAvail()}));
+function qzPool(){const on=$$('#qz-topics input').filter(i=>i.checked).map(i=>i.value);return QS.filter(q=>on.includes(q.t))}
+function qzAvail(){const n=qzPool().length;$('#qz-avail').textContent=n+' questions available'+(n?'':' (pick at least one topic)');$('#qz-start').disabled=!n}
+$('#qz-topics').addEventListener('change',qzAvail);
+function qzStart(list){
+  qz={list:list.map(q=>({...q,opts:shuffle(q.o.map((o,i)=>({o,ok:i===0})))})),i:0,score:0,ans:[]};
+  $('#qz-setup').hidden=true;$('#qz-res').hidden=true;$('#qz-run').hidden=false;qzShow();
+}
+$('#qz-start').addEventListener('click',()=>qzStart(shuffle(qzPool()).slice(0,qzLen)));
+function qzShow(){
+  const q=qz.list[qz.i];
+  $('#qz-pos').textContent='Question '+(qz.i+1)+' of '+qz.list.length;
+  $('#qz-score').textContent='Score '+qz.score+'/'+qz.i;
+  $('#qz-meter').style.width=(qz.i/qz.list.length*100)+'%';
+  $('#qz-topic').textContent=q.t.toUpperCase();
+  $('#qz-q').textContent=q.q;
+  $('#qz-opts').innerHTML=q.opts.map((o,i)=>`<button class="opt" type="button" data-i="${i}"><span class="k">${'ABCD'[i]}</span><span>${esc(o.o)}</span></button>`).join('');
+  $('#qz-exp').hidden=true;$('#qz-next').hidden=true;
+}
+$('#qz-opts').addEventListener('click',e=>{
+  const b=e.target.closest('.opt');if(!b||b.disabled)return;
+  const q=qz.list[qz.i],i=+b.dataset.i,ok=q.opts[i].ok;
+  $$('.opt',$('#qz-opts')).forEach((x,j)=>{x.disabled=true;if(q.opts[j].ok)x.classList.add('right')});
+  if(!ok)b.classList.add('wrong');
+  if(ok)qz.score++; qz.ans.push({q,ok,pick:q.opts[i].o});
+  const exp=$('#qz-exp');exp.hidden=false;
+  exp.innerHTML=(ok?'<b class="ok">Correct.</b> ':'<b class="no">Not quite.</b> ')+esc(q.e);
+  $('#qz-score').textContent='Score '+qz.score+'/'+(qz.i+1);
+  const nx=$('#qz-next');nx.hidden=false;nx.textContent=qz.i+1<qz.list.length?'Next question':'See results';nx.focus({preventScroll:true});
+});
+$('#qz-next').addEventListener('click',()=>{qz.i++;qz.i<qz.list.length?qzShow():qzEnd()});
+$('#qz-quit').addEventListener('click',()=>{qz.ans.length?qzEnd():qzReset()});
+function qzReset(){$('#qz-run').hidden=true;$('#qz-res').hidden=true;$('#qz-setup').hidden=false;qzAvail()}
+function qzEnd(){
+  const n=qz.ans.length,pct=Math.round(qz.score/n*100);
+  $('#qz-run').hidden=true;$('#qz-res').hidden=false;
+  $('#qz-pct').textContent=pct+'%';
+  $('#qz-verdict').textContent=pct>=90?'Test ready':pct>=75?'Solid, a few gaps':pct>=60?'Getting there':'Keep studying';
+  $('#qz-raw').textContent=qz.score+' of '+n+' correct';
+  if(n>=5&&(stats.best==null||pct>stats.best)){stats.best=pct;saveStats()}
+  const by={};qz.ans.forEach(a=>{by[a.q.t]=by[a.q.t]||[0,0];by[a.q.t][1]++;if(a.ok)by[a.q.t][0]++});
+  $('#qz-break').innerHTML='<thead><tr><th>Topic</th><th>Correct</th><th>Study next</th></tr></thead><tbody>'+Object.entries(by).map(([t,[c,m]])=>`<tr><td>${t}</td><td class="mono">${c}/${m}</td><td>${c===m?'<span class="up">✓</span>':'<a class="goto" href="#cards" data-goto="cards">Flashcards: '+t+'</a>'}</td></tr>`).join('')+'</tbody>';
+  const miss=qz.ans.filter(a=>!a.ok);
+  $('#qz-missed-wrap').hidden=!miss.length;$('#qz-retry').hidden=!miss.length;
+  $('#qz-missed').innerHTML=miss.map(a=>`<div><b>${esc(a.q.q)}</b><br><span class="dn">You chose:</span> ${esc(a.pick)}<br><span class="up">Answer:</span> ${esc(a.q.o[0])}</div>`).join('');
+  qz.missed=miss.map(a=>QS.find(q=>q.q===a.q.q));
+}
+$('#qz-retry').addEventListener('click',()=>qzStart(shuffle(qz.missed)));
+$('#qz-new').addEventListener('click',qzReset);
+document.addEventListener('click',e=>{const g=e.target.closest('#qz-break [data-goto]');if(!g)return;const t=g.textContent.split(': ')[1];if(t&&topics.includes(t)){$('#fc-topic').value=t;fcBuild(true)}});
+qzAvail();
+
+/* ---------------- graph lab ---------------- */
+const W=480,H=380,ML=50,MR=26,MT=18,MB=42;
+const X=q=>ML+q/10*(W-ML-MR), Y=p=>H-MB-p/10*(H-MT-MB);
+const pt=(q,p)=>X(q).toFixed(1)+','+Y(p).toFixed(1);
+const BASE={a:9,b:0.8,c:1,d:0.8,step:1.6};
+const G={mode:'predict',sD:0,sS:0,tD:0,tS:0,anim:null,showNum:false};
+function defs(){return `<defs><clipPath id="plot"><rect x="${ML}" y="${MT}" width="${W-ML-MR}" height="${H-MT-MB}"/></clipPath>
+ <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="7" height="7" class="dwl-bg"/><line x1="0" y1="0" x2="0" y2="7" class="dwl-ln"/></pattern>
+ <marker id="arw" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="arw"/></marker></defs>`}
+function axes(ticks){
+  let s='';
+  if(ticks)for(let v=2;v<=8;v+=2){s+=`<line class="tk" x1="${X(0)}" y1="${Y(v)}" x2="${X(10)}" y2="${Y(v)}"/><text x="${X(0)-7}" y="${Y(v)+4}" text-anchor="end">$${v}</text><text x="${X(v)}" y="${Y(0)+16}" text-anchor="middle">${v}</text>`}
+  s+=`<line class="ax" x1="${X(0)}" y1="${Y(0)}" x2="${X(0)}" y2="${MT-6}"/><line class="ax" x1="${X(0)}" y1="${Y(0)}" x2="${W-MR+8}" y2="${Y(0)}"/>`;
+  s+=`<text class="big" x="${X(0)-10}" y="${MT+2}" text-anchor="end">P</text><text class="big" x="${W-MR+8}" y="${Y(0)+18}" text-anchor="end">Q</text>`;
+  return s;
+}
+// demand: P = A - bQ ; supply: P = C + dQ
+const dL=(A,b,cls)=>`<line clip-path="url(#plot)" class="${cls}" x1="${X(-1)}" y1="${Y(A+b)}" x2="${X(11)}" y2="${Y(A-11*b)}"/>`;
+const sL=(C,d,cls)=>`<line clip-path="url(#plot)" class="${cls}" x1="${X(-1)}" y1="${Y(C-d)}" x2="${X(11)}" y2="${Y(C+11*d)}"/>`;
+function dLab(A,b,t,cls){let q=(A-0.9)/b;if(q>9.6)q=9.6;const p=A-b*q;return `<text class="${cls}" x="${X(q)+6}" y="${Y(p)-4}">${t}</text>`}
+function sLab(C,d,t,cls){let q=(9.4-C)/d;if(q>9.6)q=9.6;const p=C+d*q;return `<text class="${cls}" x="${X(q)+6}" y="${Y(p)+4}">${t}</text>`}
+const poly=(pts,cls)=>pts.length?`<polygon clip-path="url(#plot)" class="${cls}" points="${pts.map(([q,p])=>pt(q,p)).join(' ')}"/>`:'';
+function guide2(q,p,lp,lq){return `<polyline class="gd" fill="none" points="${pt(0,p)} ${pt(q,p)} ${pt(q,0)}"/>`+(lp?`<text class="big" x="${X(0)-7}" y="${Y(p)+4}" text-anchor="end">${lp}</text>`:'')+(lq?`<text class="big" x="${X(q)}" y="${Y(0)+17}" text-anchor="middle">${lq}</text>`:'')}
+function eqOf(sD,sS){const A=BASE.a+BASE.b*sD,C=BASE.c-BASE.d*sS,q=(A-C)/(BASE.b+BASE.d);return{A,C,q,p:A-BASE.b*q}}
+function setLegend(items){$('#gleg').innerHTML=items.map(([c,t])=>`<span><i class="sw" style="${c}"></i>${t}</span>`).join('')}
+
+function drawShift(){
+  const e0=eqOf(0,0), e=eqOf(G.sD,G.sS), mvD=Math.abs(G.sD)>1e-3, mvS=Math.abs(G.sS)>1e-3, any=mvD||mvS;
+  let s=defs()+axes(false);
+  if(mvD){s+=dL(e0.A,BASE.b,'Dc old')+dLab(e0.A,BASE.b,'D₁','Dt')}
+  if(mvS){s+=sL(e0.C,BASE.d,'Sc old')+sLab(e0.C,BASE.d,'S₁','St')}
+  s+=dL(e.A,BASE.b,'Dc')+dLab(e.A,BASE.b,mvD?'D₂':'D','Dt');
+  s+=sL(e.C,BASE.d,'Sc')+sLab(e.C,BASE.d,mvS?'S₂':'S','St');
+  if(any){
+    const close=Math.abs(e.p-e0.p)<0.45, closeQ=Math.abs(e.q-e0.q)<0.45;
+    s+=guide2(e0.q,e0.p,close?'':'P₁',closeQ?'':'Q₁')+guide2(e.q,e.p,close?'P':'P₂',closeQ?'Q':'Q₂');
+    s+=`<circle class="eq1" cx="${X(e0.q)}" cy="${Y(e0.p)}" r="5"/>`;
+  } else s+=guide2(e.q,e.p,'Pₑ','Qₑ');
+  s+=`<circle class="eq" cx="${X(e.q)}" cy="${Y(e.p)}" r="5.5"/>`;
+  if(mvD){const p=Math.min(e0.A,e.A)-1.2,q1=(e0.A-p)/BASE.b,q2=(e.A-p)/BASE.b;s+=`<line class="sa" x1="${X(q1)+(q2>q1?6:-6)}" y1="${Y(p)}" x2="${X(q2)+(q2>q1?-8:8)}" y2="${Y(p)}" marker-end="url(#arw)"/>`}
+  if(mvS){const p=Math.max(e0.C,e.C)+1.2,q1=(p-e0.C)/BASE.d,q2=(p-e.C)/BASE.d;s+=`<line class="sa" x1="${X(q1)+(q2>q1?6:-6)}" y1="${Y(p)}" x2="${X(q2)+(q2>q1?-8:8)}" y2="${Y(p)}" marker-end="url(#arw)"/>`}
+  $('#gsvg').innerHTML=s;
+  setLegend([['background:var(--demand)','Demand'],['background:var(--supply)','Supply'],['background:var(--ink);border-radius:50%;width:10px','Equilibrium'],...(any?[['border:2px dashed var(--muted);height:8px','Original curve']]:[])]);
+  if(G.mode==='explore')explainExplore(e0,e);
+}
+function animateTo(tD,tS){
+  G.tD=tD;G.tS=tS; if(G.anim)cancelAnimationFrame(G.anim);
+  if(reduceMotion){G.sD=tD;G.sS=tS;drawShift();return}
+  const fD=G.sD,fS=G.sS,t0=performance.now(),dur=650;
+  const step=now=>{const k=Math.min(1,(now-t0)/dur),ez=1-Math.pow(1-k,3);G.sD=fD+(tD-fD)*ez;G.sS=fS+(tS-fS)*ez;drawShift();if(k<1)G.anim=requestAnimationFrame(step)};
+  G.anim=requestAnimationFrame(step);
+}
+function explainExplore(e0,e){
+  const dD=Math.sign(G.tD),dS=Math.sign(G.tS),out=$('#ex-out');
+  if(!dD&&!dS){out.innerHTML='<h4>Starting point</h4>Equilibrium is where D and S cross. Shift a curve to see what happens.';return}
+  const pDir=dD-dS, qDir=dD+dS; // demand up raises P & Q; supply up lowers P, raises Q
+  const both=dD&&dS;
+  const word=(v,name)=>v>0?`<span class="up">${name} rises ↑</span>`:v<0?`<span class="dn">${name} falls ↓</span>`:`<span class="q">${name} is indeterminate ?</span>`;
+  const sentD=dD?`Demand ${dD>0?'increased':'decreased'}`:'', sentS=dS?`supply ${dS>0?'increased':'decreased'}`:'';
+  out.innerHTML=`<h4>${[sentD,sentS].filter(Boolean).join(' and ').replace(/^s/,'S')}</h4>From directions alone: ${word(both&&pDir===0?0:Math.sign(dD-dS),'Price')}, ${word(both&&qDir===0?0:Math.sign(dD+dS),'Quantity')}.`+
+   (both?`<p class="note" style="margin:6px 0 0">With two shifts, the indeterminate one depends on which shift is bigger. Shift one curve a second time and watch it flip. On the test, write <b>indeterminate</b>.</p>`:'');
+}
+
+/* predict */
+const SCEN=[
+ {m:'Hamburgers',e:'The price of hot dogs, a substitute, rises.',c:'D',d:1,det:'S · Substitutes (SPPICE)',x:'Hot dogs cost more, so some buyers switch to hamburgers. Demand for hamburgers increases.'},
+ {m:'Peanut butter',e:'The price of jelly, a complement, jumps.',c:'D',d:-1,det:'P · Price of complements (SPPICE)',x:'People buy less jelly and so less peanut butter to go with it.'},
+ {m:'Electric cars',e:'A viral ad campaign makes EVs the must-have car.',c:'D',d:1,det:'P · Preferences (SPPICE)',x:'Tastes shift toward EVs, so buyers want more at every price.'},
+ {m:'Used cars (an inferior good)',e:'Incomes rise across the country.',c:'D',d:-1,det:'I · Income (SPPICE)',x:'With more income, buyers switch from used to new cars. Demand for an inferior good falls when income rises.'},
+ {m:'Restaurant meals (a normal good)',e:'A recession cuts household incomes.',c:'D',d:-1,det:'I · Income (SPPICE)',x:'Less income means less demand for normal goods.'},
+ {m:'Gasoline',e:'Drivers expect gas prices to jump next week.',c:'D',d:1,det:'E · Expectations (SPPICE)',x:'Buyers fill up now before the price rises, so demand today increases.'},
+ {m:'Diapers',e:'A baby boom increases the number of infants.',c:'D',d:1,det:'C · Consumers / number of buyers (SPPICE)',x:'More buyers in the market means more demand.'},
+ {m:'Pizza in a college town',e:'5,000 new students move into town.',c:'D',d:1,det:'C · Consumers / number of buyers (SPPICE)',x:'More buyers in the market means more demand.'},
+ {m:'Tennis balls',e:'Tennis rackets go on sale for half price.',c:'D',d:1,det:'P · Price of complements (SPPICE)',x:'Cheaper rackets mean more people play tennis, so demand for balls rises.'},
+ {m:'Movie theater tickets',e:'Streaming subscriptions get much cheaper.',c:'D',d:-1,det:'S · Substitutes (SPPICE)',x:'A substitute got cheaper, so people stay home and demand for theater tickets falls.'},
+ {m:'Ramen noodles (an inferior good)',e:'A recession cuts incomes.',c:'D',d:1,det:'I · Income (SPPICE)',x:'When income falls, people buy more inferior goods.'},
+ {m:'Avocados',e:'A major study links avocados to better health.',c:'D',d:1,det:'P · Preferences (SPPICE)',x:'Tastes shift toward avocados.'},
+ {m:'Bread',e:'The price of wheat, bread’s main input, falls.',c:'S',d:1,det:'R · Resource costs (ROTTEN)',x:'Cheaper inputs lower production costs, so bakers supply more at every price.'},
+ {m:'Smartphones',e:'A new chip-making process cuts production costs.',c:'S',d:1,det:'T · Technology (ROTTEN)',x:'Better technology makes production cheaper. Supply increases.'},
+ {m:'Cigarettes',e:'The government adds a $2 per-pack excise tax on producers.',c:'S',d:-1,det:'T · Taxes (ROTTEN)',x:'A tax raises the cost of selling each pack, shifting supply left.'},
+ {m:'Corn',e:'The government gives corn farmers a per-bushel subsidy.',c:'S',d:1,det:'T · Subsidies (ROTTEN)',x:'A subsidy lowers producers’ costs, shifting supply right.'},
+ {m:'Coffee in your town',e:'Five new coffee shops open.',c:'S',d:1,det:'N · Number of sellers (ROTTEN)',x:'More sellers means more supply.'},
+ {m:'Crude oil (today)',e:'Oil producers expect much higher prices next month, so they hold output back now.',c:'S',d:-1,det:'E · Expectations of producers (ROTTEN)',x:'Producers save output to sell later at the higher price, so supply today decreases.'},
+ {m:'Corn',e:'The price of soybeans rises. Farmers can grow either crop on the same land.',c:'S',d:-1,det:'O · Other goods’ prices (ROTTEN)',x:'Soybeans are now more profitable, so farmers move land away from corn.'},
+ {m:'Orange juice',e:'A hard freeze destroys much of Florida’s orange crop.',c:'S',d:-1,det:'R · Resources / inputs (ROTTEN)',x:'Fewer oranges (the key input) means less juice can be made.'},
+ {m:'Fast food meals',e:'The minimum wage for restaurant workers rises.',c:'S',d:-1,det:'R · Resource costs (ROTTEN)',x:'Labor is an input. Higher wages raise costs and shift supply left.'},
+ {m:'Bicycles',e:'Several bike manufacturers go out of business.',c:'S',d:-1,det:'N · Number of sellers (ROTTEN)',x:'Fewer sellers means less supply.'},
+ {m:'Ice cream',e:'The price of ice cream rises.',c:'N',det:'Trick question: own price',x:'A change in the good’s own price never shifts its own curves. It is a movement along the demand curve (quantity demanded falls) and along the supply curve (quantity supplied rises).'},
+ {m:'Concert tickets',e:'The price of concert tickets falls.',c:'N',det:'Trick question: own price',x:'Own-price changes cause movements along the curves: quantity demanded rises and quantity supplied falls. Neither curve shifts.'},
+];
+let pr={order:shuffle(SCEN.map((s,i)=>i)),i:0,ans:{},checked:false};
+const PRG=['curve','dir','p','q'];
+function prCur(){return SCEN[pr.order[pr.i%pr.order.length]]}
+function prLoad(){
+  const s=prCur();pr.ans={};pr.checked=false;
+  $('#pr-market').textContent=s.m;$('#pr-event').textContent=s.e;
+  $$('#m-predict .choice button').forEach(b=>{b.setAttribute('aria-pressed','false');b.classList.remove('right','wrong');b.disabled=false});
+  prSync();$('#pr-fb').hidden=true;$('#pr-next').hidden=true;$('#pr-check').hidden=false;
+  G.sD=G.sS=0;G.tD=G.tS=0;drawShift();
+}
+function prSync(){
+  const none=pr.ans.curve==='N';
+  ['dir','p','q'].forEach(g=>$$(`#m-predict [data-g="${g}"] button`).forEach(b=>{if(!pr.checked)b.disabled=none}));
+  const ready=pr.ans.curve&&(none||(pr.ans.dir&&pr.ans.p&&pr.ans.q));
+  $('#pr-check').disabled=!ready;
+  $('#pr-score').textContent=`Score ${stats.pred[0]}/${stats.pred[1]}`;
+}
+$('#m-predict').addEventListener('click',e=>{
+  const b=e.target.closest('.choice button');if(!b||pr.checked)return;
+  const g=b.parentElement.dataset.g;pr.ans[g]=b.dataset.v;
+  $$('button',b.parentElement).forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'));prSync();
+});
+$('#pr-check').addEventListener('click',()=>{
+  const s=prCur(),a=pr.ans;pr.checked=true;
+  const key=s.c==='N'?{curve:'N'}:{curve:s.c,dir:String(s.d),p:String(s.c==='D'?s.d:-s.d),q:String(s.d)};
+  let allOk=true;
+  PRG.forEach(g=>{
+    const row=$$(`#m-predict [data-g="${g}"] button`);
+    row.forEach(b=>{b.disabled=true;b.setAttribute('aria-pressed','false')});
+    if(!(g in key))return;
+    row.forEach(b=>{if(b.dataset.v===key[g])b.classList.add('right');else if(b.dataset.v===a[g])b.classList.add('wrong')});
+    if(a[g]!==key[g])allOk=false;
+  });
+  stats.pred[1]++;if(allOk)stats.pred[0]++;saveStats();prSync();
+  const fb=$('#pr-fb');fb.hidden=false;fb.className='fb '+(allOk?'ok':'no');
+  const res=s.c==='N'?'':` ${s.c==='D'?'Demand':'Supply'} ${s.d>0?'increases (right)':'decreases (left)'} → price ${key.p==='1'?'rises':'falls'}, quantity ${key.q==='1'?'rises':'falls'}.`;
+  fb.innerHTML=`<h4>${allOk?'Correct!':'Not quite.'}${res}</h4>${esc(s.x)}<br><span class="pill">${esc(s.det)}</span>`;
+  $('#pr-check').hidden=true;$('#pr-next').hidden=false;
+  if(s.c==='D')animateTo(s.d*BASE.step,0);else if(s.c==='S')animateTo(0,s.d*BASE.step);
+});
+$('#pr-next').addEventListener('click',()=>{pr.i++;if(pr.i%pr.order.length===0)pr.order=shuffle(pr.order);prLoad()});
+
+/* explore */
+$$('[data-sh]').forEach(b=>b.addEventListener('click',()=>{
+  const v=+b.dataset.v*BASE.step,cl=x=>Math.max(-2*BASE.step,Math.min(2*BASE.step,x));
+  b.dataset.sh==='D'?animateTo(cl(G.tD+v),G.tS):animateTo(G.tD,cl(G.tS+v));
+}));
+$('#ex-reset').addEventListener('click',()=>animateTo(0,0));
+
+/* policy */
+const PO={type:'none',lvl:{ceiling:3.5,floor:6.5,tax:2}};
+function drawPolicy(){
+  const b=+$('#po-b').value,d=+$('#po-d').value,a=5+5*b,c=5-5*d,Qe=5,Pe=5;
+  const Qd=P=>Math.max(0,(a-P)/b),Qs=P=>Math.max(0,(P-c)/d),D=q=>a-b*q,S=q=>c+d*q;
+  const L=PO.lvl[PO.type];let s=defs()+axes(true),R=[],note='',parts='';
+  let cs,ps,dwl=0,rev=0,qt=Qe,pb=Pe,psl=Pe,sh=null;
+  if(PO.type==='none'){
+    cs=0.5*Qe*(a-Pe);ps=0.5*Qe*(Pe-c);
+    parts+=poly([[0,a],[Qe,Pe],[0,Pe]],'cs')+poly([[0,c],[Qe,Pe],[0,Pe]],'ps');
+    note='<h4>Free market</h4>Total surplus (CS + PS) is as large as it can be at equilibrium. There is no deadweight loss.';
+  } else if(PO.type==='ceiling'){
+    if(L>=Pe){cs=0.5*Qe*(a-Pe);ps=0.5*Qe*(Pe-c);parts+=poly([[0,a],[Qe,Pe],[0,Pe]],'cs')+poly([[0,c],[Qe,Pe],[0,Pe]],'ps');
+      note=`<h4>Not binding</h4>A ceiling at ${money(L)} is above the equilibrium price of ${money(Pe)}, so the market ignores it. Effective ceilings are set <b>below</b> equilibrium.`;}
+    else{qt=Qs(L);const pd=D(qt);pb=psl=L;
+      cs=qt*(a-L)-0.5*b*qt*qt;ps=0.5*qt*(L-c);dwl=0.5*(Qe-qt)*(pd-L);sh=[Qs(L),Qd(L),L];
+      parts+=poly([[0,a],[qt,pd],[qt,L],[0,L]],'cs')+poly([[0,c],[qt,L],[0,L]],'ps')+poly([[qt,pd],[Qe,Pe],[qt,L]],'dwl');
+      note=`<h4>Binding ceiling → shortage of ${fmt(Qd(L)-Qs(L))} units</h4>At ${money(L)} buyers want ${fmt(Qd(L))} units but sellers only offer ${fmt(qt)}. Only ${fmt(qt)} units trade. The hatched triangle is deadweight loss.`;}
+  } else if(PO.type==='floor'){
+    if(L<=Pe){cs=0.5*Qe*(a-Pe);ps=0.5*Qe*(Pe-c);parts+=poly([[0,a],[Qe,Pe],[0,Pe]],'cs')+poly([[0,c],[Qe,Pe],[0,Pe]],'ps');
+      note=`<h4>Not binding</h4>A floor at ${money(L)} is below the equilibrium price of ${money(Pe)}, so it has no effect. Effective floors are set <b>above</b> equilibrium.`;}
+    else{qt=Qd(L);const pS=S(qt);pb=psl=L;
+      cs=0.5*qt*(a-L);ps=qt*(L-c)-0.5*d*qt*qt;dwl=0.5*(Qe-qt)*(L-pS);sh=[Qd(L),Qs(L),L];
+      parts+=poly([[0,a],[qt,L],[0,L]],'cs')+poly([[0,c],[qt,pS],[qt,L],[0,L]],'ps')+poly([[qt,L],[Qe,Pe],[qt,pS]],'dwl');
+      note=`<h4>Binding floor → surplus of ${fmt(Qs(L)-Qd(L))} units</h4>At ${money(L)} sellers offer ${fmt(Qs(L))} units but buyers only want ${fmt(qt)}. Only ${fmt(qt)} units trade. The hatched triangle is deadweight loss.`;}
+  } else {
+    const t=L;qt=Math.max(0,(a-c-t)/(b+d));pb=D(qt);psl=pb-t;
+    cs=0.5*qt*(a-pb);ps=0.5*qt*Math.max(0,psl-c);rev=t*qt;dwl=0.5*t*(Qe-qt);
+    parts+=poly([[0,a],[qt,pb],[0,pb]],'cs')+poly([[0,pb],[qt,pb],[qt,psl],[0,psl]],'rev')+poly([[0,c],[qt,psl],[0,psl]],'ps')+poly([[qt,pb],[Qe,Pe],[qt,psl]],'dwl');
+    const cb=pb-Pe,pbu=Pe-psl,share=t?Math.round(cb/t*100):50;
+    note=t?`<h4>Buyers pay ${money(cb)} of the ${money(t)} tax (${share}%), sellers pay ${money(pbu)} (${100-share}%)</h4>${share>55?'Demand is more inelastic than supply, so <b>consumers</b> bear more of the burden.':share<45?'Demand is more elastic than supply, so <b>producers</b> bear more of the burden.':'Demand and supply are about equally elastic, so the burden is split roughly evenly.'} Drag the demand slider to see the burden move.`:'<h4>No tax yet</h4>Drag the slider to add a per-unit tax.';
+  }
+  s+=parts;
+  s+=dL(a,b,'Dc')+dLab(a,b,'D','Dt')+sL(c,d,'Sc')+sLab(c,d,'S','St');
+  if(PO.type==='tax'&&L>0)s+=sL(c+L,d,'tax')+sLab(c+L,d,'S + tax','St');
+  if(PO.type==='ceiling'||PO.type==='floor'){
+    s+=`<line class="ctrl" x1="${X(0)}" y1="${Y(L)}" x2="${X(10)}" y2="${Y(L)}"/><text class="big" x="${X(0)+6}" y="${Y(L)-7}">${PO.type==='ceiling'?'Price ceiling':'Price floor'} ${money(L)}</text>`;
+    if(sh){const [q1,q2,p]=sh,y=Y(p)+(PO.type==='ceiling'?10:-10);s+=`<line class="gap" x1="${X(q1)}" y1="${y}" x2="${X(q2)}" y2="${y}"/><text class="gapt" x="${(X(q1)+X(q2))/2}" y="${y+(PO.type==='ceiling'?14:-6)}" text-anchor="middle">${PO.type==='ceiling'?'shortage':'surplus'}</text>`}
+  }
+  s+=`<polyline class="gd" fill="none" points="${pt(0,pb)} ${pt(qt,pb)} ${pt(qt,0)}"/>`;
+  if(PO.type==='tax'&&L>0)s+=`<polyline class="gd" fill="none" points="${pt(0,psl)} ${pt(qt,psl)}"/>`;
+  if(dwl>0||PO.type!=='none')s+=`<circle class="eq1" cx="${X(Qe)}" cy="${Y(Pe)}" r="4.5"/>`;
+  s+=`<circle class="eq" cx="${X(qt)}" cy="${Y(pb)}" r="5"/>`;
+  $('#gsvg').innerHTML=s;
+  R=[['Price buyers pay',money(pb)],['Price sellers keep',money(psl)],['Quantity sold',fmt(qt)],['Equilibrium Q',fmt(Qe)],['Consumer surplus',money(cs)],['Producer surplus',money(ps)],['Tax revenue',money(rev)],['Deadweight loss',money(dwl)]];
+  $('#po-read').innerHTML=R.map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
+  $('#po-note').innerHTML=note;
+  setLegend([['background:var(--demand);opacity:.35','Consumer surplus'],['background:var(--supply);opacity:.35','Producer surplus'],...(PO.type==='tax'?[['background:var(--good);opacity:.4','Tax revenue']]:[]),['background:var(--gold);opacity:.5','Deadweight loss'],['background:var(--surface);border:2px solid var(--muted);border-radius:50%;width:10px','Free-market equilibrium']]);
+}
+function setPolicy(t){
+  PO.type=t;$$('#po-type button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.p===t?'true':'false'));
+  const w=$('#po-lvl-wrap'),r=$('#po-lvl');w.hidden=t==='none';
+  if(t!=='none'){
+    if(t==='tax'){r.min=0;r.max=4;}else{r.min=1;r.max=9;}
+    r.value=PO.lvl[t];
+    $('#po-lvl-lab').textContent=t==='tax'?'Tax per unit':t==='ceiling'?'Ceiling price':'Floor price';
+  }
+  drawPolicy();
+}
+$$('#po-type button').forEach(b=>b.addEventListener('click',()=>setPolicy(b.dataset.p)));
+$('#po-lvl').addEventListener('input',e=>{PO.lvl[PO.type]=+e.target.value;drawPolicy()});
+['#po-b','#po-d'].forEach(id=>$(id).addEventListener('input',drawPolicy));
+
+function setGraphMode(m){
+  G.mode=m;$$('#gr-mode button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.m===m?'true':'false'));
+  ['predict','explore','policy'].forEach(k=>$('#m-'+k).hidden=k!==m);
+  if(G.anim)cancelAnimationFrame(G.anim);
+  if(m==='predict')prLoad();
+  else if(m==='explore'){G.sD=G.sS=G.tD=G.tS=0;drawShift()}
+  else drawPolicy();
+}
+$$('#gr-mode button').forEach(b=>b.addEventListener('click',()=>setGraphMode(b.dataset.m)));
+function drawGraph(){G.mode==='policy'?drawPolicy():drawShift()}
+
+/* ---------------- elasticity drills ---------------- */
+const EL={cur:null,cls:null,tr:null,done:false};
+const CLS={ped:['Elastic','Inelastic','Unit elastic'],pes:['Elastic','Inelastic','Unit elastic'],cross:['Substitutes','Complements','Unrelated'],income:['Normal good','Inferior good']};
+function genEl(){
+  const type=pick(['ped','ped','ped','cross','income','pes']);
+  const ELASTIC=[1.5,2,2.5,3,4],INEL=[0.2,0.25,0.4,0.5,0.6,0.75,0.8];
+  if(type==='ped'||type==='pes'){
+    const k=pick(['e','e','i','i','u']),E=k==='e'?pick(ELASTIC):k==='i'?pick(INEL):1;
+    const dP=pick([4,8,10,20]),dQ=E*dP,up=Math.random()<.5;
+    const good=type==='ped'?pick(['concert tickets','gasoline','sneakers','movie streaming','bottled water','pizza']):pick(['fresh strawberries','T-shirts','apartments','phone apps','handmade furniture','wheat']);
+    const txt=type==='ped'
+      ?`The price of <b>${good}</b> ${up?'rises':'falls'} by <b>${fmt(dP)}%</b>, and quantity demanded ${up?'falls':'rises'} by <b>${fmt(dQ)}%</b>.`
+      :`The price of <b>${good}</b> ${up?'rises':'falls'} by <b>${fmt(dP)}%</b>, and quantity supplied ${up?'rises':'falls'} by <b>${fmt(dQ)}%</b>.`;
+    return {type,E,txt,num:fmt(dQ),den:fmt(dP),cls:E>1?'Elastic':E<1?'Inelastic':'Unit elastic',tr:E>1?'lower':E<1?'raise':'none',
+      top:type==='ped'?'% change in Qd':'% change in Qs',bot:'% change in Price'};
+  }
+  if(type==='cross'){
+    const rel=pick(['s','s','c','c']);
+    const [x,y]=rel==='s'?pick([['Pepsi','Coke'],['butter','margarine'],['Lyft rides','Uber rides'],['tea','coffee'],['Xbox consoles','PlayStation consoles']]):pick([['hot dog buns','hot dogs'],['printer ink','printers'],['tennis balls','tennis rackets'],['gasoline','SUVs'],['popcorn','movie tickets']]);
+    const mag=pick([0.4,0.5,0.8,1.2,1.5,2]),dP=pick([5,10,20]),E=(rel==='s'?1:-1)*mag,dQ=Math.abs(E)*dP;
+    return {type,E,txt:`The price of <b>${y}</b> rises by <b>${dP}%</b>, and quantity demanded of <b>${x}</b> ${E>0?'rises':'falls'} by <b>${fmt(dQ)}%</b>.`,
+      num:(E>0?'+':'−')+fmt(dQ),den:'+'+dP,cls:E>0?'Substitutes':'Complements',signed:true,top:'% change in Qd of X',bot:'% change in Price of Y'};
+  }
+  const nrm=Math.random()<.55,g=nrm?pick(['restaurant meals','new cars','concert tickets','organic groceries','plane tickets']):pick(['ramen noodles','bus rides','store-brand cereal','used clothing','canned soup']);
+  const mag=pick([0.3,0.5,0.8,1.5,2]),dI=pick([4,5,10]),up=Math.random()<.5,E=(nrm?1:-1)*mag,dQ=mag*dI;
+  const qUp=up===nrm;
+  return {type,E,txt:`Consumer incomes ${up?'rise':'fall'} by <b>${dI}%</b>, and quantity demanded of <b>${g}</b> ${qUp?'rises':'falls'} by <b>${fmt(dQ)}%</b>.`,
+    num:(qUp?'+':'−')+fmt(dQ),den:(up?'+':'−')+dI,cls:E>0?'Normal good':'Inferior good',signed:true,top:'% change in Qd',bot:'% change in Income'};
+}
+const KIND={ped:'Price elasticity of demand',pes:'Price elasticity of supply',cross:'Cross-price elasticity',income:'Income elasticity'};
+function elLoad(){
+  const p=EL.cur=genEl();EL.cls=null;EL.tr=null;EL.done=false;
+  $('#el-kind').textContent=KIND[p.type].toUpperCase();
+  $('#el-prob').innerHTML=p.txt;
+  $('#el-frac').innerHTML=`<span>${p.top}</span><span>${p.bot}</span>`;
+  const n=$('#el-num');n.value='';n.className='';n.disabled=false;
+  $('#el-numhint').textContent=p.signed?'Keep the sign (+ or −)':'Use the absolute value';
+  $('#el-cls').innerHTML=CLS[p.type].map(c=>`<button type="button" data-v="${c}">${c}</button>`).join('');
+  $('#el-tr-wrap').hidden=p.type!=='ped';
+  $$('#el-tr button').forEach(b=>{b.setAttribute('aria-pressed','false');b.className='';b.disabled=false});
+  $('#el-fb').hidden=true;$('#el-next').hidden=true;$('#el-check').hidden=false;elScore();
+}
+function elScore(){$('#el-score').textContent=`Score ${stats.el[0]}/${stats.el[1]}`}
+function bindChoice(sel,key){$(sel).addEventListener('click',e=>{const b=e.target.closest('button');if(!b||EL.done)return;EL[key]=b.dataset.v;$$('button',$(sel)).forEach(x=>x.setAttribute('aria-pressed',x===b?'true':'false'))})}
+bindChoice('#el-cls','cls');bindChoice('#el-tr','tr');
+$('#el-num').addEventListener('keydown',e=>{if(e.key==='Enter')$('#el-check').click()});
+$('#el-check').addEventListener('click',()=>{
+  const p=EL.cur,raw=$('#el-num').value.trim().replace('−','-').replace(/^\+/,'');
+  const v=parseFloat(raw);
+  if(raw===''||isNaN(v)||!EL.cls||(p.type==='ped'&&!EL.tr)){const fb=$('#el-fb');fb.hidden=false;fb.className='fb';fb.innerHTML='Answer every part first: type the coefficient and pick '+(p.type==='ped'?'both options.':'a classification.');return}
+  EL.done=true;
+  const numOk=p.signed?Math.abs(v-p.E)<0.011:Math.abs(Math.abs(v)-p.E)<0.011;
+  const clsOk=EL.cls===p.cls,trOk=p.type!=='ped'||EL.tr===p.tr,ok=numOk&&clsOk&&trOk;
+  const n=$('#el-num');n.className=numOk?'right':'wrong';n.disabled=true;
+  $$('#el-cls button').forEach(b=>{b.disabled=true;b.setAttribute('aria-pressed','false');if(b.dataset.v===p.cls)b.className='right';else if(b.dataset.v===EL.cls)b.className='wrong'});
+  if(p.type==='ped')$$('#el-tr button').forEach(b=>{b.disabled=true;b.setAttribute('aria-pressed','false');if(b.dataset.v===p.tr)b.className='right';else if(b.dataset.v===EL.tr)b.className='wrong'});
+  stats.el[1]++;if(ok)stats.el[0]++;saveStats();elScore();
+  const Es=(p.signed&&p.E>0?'+':p.E<0?'−':'')+fmt(Math.abs(p.E));
+  let why;
+  if(p.type==='ped'||p.type==='pes'){
+    why=`|E| = ${p.num}% ÷ ${p.den}% = <b>${fmt(p.E)}</b>. ${p.E>1?'Greater than 1, so it is elastic.':p.E<1?'Less than 1, so it is inelastic.':'Exactly 1, so it is unit elastic.'}`;
+    if(p.type==='ped')why+=p.E>1?' With elastic demand, <b>lowering</b> the price raises total revenue (quantity jumps by a bigger %).':p.E<1?' With inelastic demand, <b>raising</b> the price raises total revenue (quantity barely falls).':' At unit elasticity, price changes leave total revenue unchanged.';
+  } else if(p.type==='cross') why=`E = ${p.num}% ÷ ${p.den}% = <b>${Es}</b>. ${p.E>0?'Positive, so the goods are substitutes.':'Negative, so the goods are complements.'}`;
+  else why=`E = ${p.num}% ÷ ${p.den}% = <b>${Es}</b>. ${p.E>0?'Positive, so it is a normal good'+(p.E>1?' (above 1, a luxury).':'.'):'Negative, so it is an inferior good.'}`;
+  const fb=$('#el-fb');fb.hidden=false;fb.className='fb '+(ok?'ok':'no');fb.innerHTML=`<h4>${ok?'Correct!':'Check the parts marked in red.'}</h4>${why}`;
+  $('#el-check').hidden=true;$('#el-next').hidden=false;$('#el-next').focus({preventScroll:true});
+});
+$('#el-next').addEventListener('click',elLoad);
+
+/* ---------------- utility shopper ---------------- */
+const USC=[
+ {name:'Lunch run · $11',budget:11,A:{n:'Burritos',p:2,mu:[24,20,16,12,8,4]},B:{n:'Sodas',p:1,mu:[10,8,6,4,3,2]}},
+ {name:'Friday night · $11',budget:11,A:{n:'Pizza slices',p:3,mu:[30,24,18,12,9]},B:{n:'Cookies',p:1,mu:[8,6,5,4,3,2]}},
+ {name:'Weekend fun · $20',budget:20,A:{n:'Books',p:4,mu:[40,32,24,16,8]},B:{n:'Movie tickets',p:2,mu:[20,16,14,12,8,4]}},
+];
+$('#ut-scn').innerHTML=USC.map((s,i)=>`<option value="${i}">${s.name}</option>`).join('');
+const UT={s:USC[0],qa:0,qb:0,left:0,log:[],miss:0};
+function utReset(){const s=UT.s=USC[+$('#ut-scn').value];UT.qa=0;UT.qb=0;UT.left=s.budget;UT.log=[];UT.miss=0;utPaint()}
+function utNext(g){const G2=UT.s[g],q=g==='A'?UT.qa:UT.qb;return q<G2.mu.length?{mu:G2.mu[q],p:G2.p,r:G2.mu[q]/G2.p,aff:G2.p<=UT.left}:null}
+function utPaint(){
+  const s=UT.s,rows=Math.max(s.A.mu.length,s.B.mu.length);
+  let h=`<thead><tr><th>Unit</th><th class="gA">${s.A.n} MU</th><th class="gA">MU ÷ $${s.A.p}</th><th class="gB">${s.B.n} MU</th><th class="gB">MU ÷ $${s.B.p}</th></tr></thead><tbody>`;
+  for(let i=0;i<rows;i++){
+    const cell=(G2,q,i)=>{if(i>=G2.mu.length)return '<td></td><td></td>';const c=i<q?'b':i===q?'nx':'';return `<td class="mono ${c}">${G2.mu[i]}</td><td class="mono r ${c}">${fmt(G2.mu[i]/G2.p)}</td>`};
+    h+=`<tr><td class="mono">${i+1}</td>${cell(s.A,UT.qa,i)}${cell(s.B,UT.qb,i)}</tr>`;
+  }
+  const tbl=$('#ut-table');tbl.innerHTML=h+'</tbody>';tbl.classList.toggle('hideR',$('#ut-hide').checked);
+  const tu=s.A.mu.slice(0,UT.qa).reduce((x,y)=>x+y,0)+s.B.mu.slice(0,UT.qb).reduce((x,y)=>x+y,0);
+  $('#ut-read').innerHTML=[['Budget',money(s.budget)],['Money left',money(UT.left)],[s.A.n,UT.qa],[s.B.n,UT.qb],['Total utility',tu+' utils'],['Wrong picks',UT.miss]].map(([k,v])=>`<div><span>${k}</span><b>${v}</b></div>`).join('');
+  const na=utNext('A'),nb=utNext('B'),done=!(na&&na.aff)&&!(nb&&nb.aff);
+  $('#ut-buy').innerHTML=done?'':['A','B'].map(g=>{const n=utNext(g),G2=s[g];return `<button class="btn" type="button" data-buy="${g}" ${n&&n.aff?'':'disabled'}>Buy ${G2.n.replace(/s$/,'')} #${(g==='A'?UT.qa:UT.qb)+1} ($${G2.p})</button>`}).join('');
+  const fb=$('#ut-fb');
+  if(done){
+    const la=UT.qa?s.A.mu[UT.qa-1]/s.A.p:null,lb=UT.qb?s.B.mu[UT.qb-1]/s.B.p:null;
+    fb.className='fb ok';
+    fb.innerHTML=`<h4>Budget spent: ${UT.qa} ${s.A.n.toLowerCase()} + ${UT.qb} ${s.B.n.toLowerCase()} = ${tu} utils</h4>Check the rule: last ${s.A.n.toLowerCase()} MU/P = ${s.A.mu[UT.qa-1]} ÷ ${s.A.p} = <b>${fmt(la)}</b>, last ${s.B.n.toLowerCase()} MU/P = ${s.B.mu[UT.qb-1]} ÷ ${s.B.p} = <b>${fmt(lb)}</b>. ${la===lb?'They’re equal and the budget is used up, so utility is maximized.':''} ${UT.miss?`You made ${UT.miss} wrong pick${UT.miss>1?'s':''} along the way.`:'Perfect run!'}`;
+  } else if(!UT.log.length){fb.className='fb';fb.innerHTML='<h4>Your move</h4>Compare MU ÷ P for the next unit of each good (the dashed boxes) and buy the higher one.'}
+  $('#ut-log').innerHTML=UT.log.map(l=>`<div class="${l.ok?'':'no'}">${l.t}</div>`).join('')||'<span class="muted">Nothing bought yet.</span>';
+}
+$('#ut-buy').addEventListener('click',e=>{
+  const b=e.target.closest('[data-buy]');if(!b)return;const g=b.dataset.buy,o=g==='A'?'B':'A',s=UT.s;
+  const me=utNext(g),other=utNext(o),best=other&&other.aff&&other.r>me.r;
+  const fb=$('#ut-fb');
+  if(best){
+    UT.miss++;UT.log.unshift({ok:false,t:`✗ ${s[g].n}: ${me.mu} ÷ $${me.p} = ${fmt(me.r)} utils/$, but ${s[o].n.toLowerCase()} gives ${fmt(other.r)}.`});
+    fb.className='fb no';fb.innerHTML=`<h4>Not the best buy</h4>The next ${s[o].n.toLowerCase().replace(/s$/,'')} gives <b>${fmt(other.r)}</b> utils per dollar vs <b>${fmt(me.r)}</b> for ${s[g].n.toLowerCase()}. Try again.`;
+  } else {
+    g==='A'?UT.qa++:UT.qb++;UT.left-=me.p;
+    const tie=other&&other.aff&&other.r===me.r;
+    UT.log.unshift({ok:true,t:`✓ ${s[g].n} #${g==='A'?UT.qa:UT.qb}: ${me.mu} ÷ $${me.p} = ${fmt(me.r)} utils/$${tie?' (tied, either works)':''}`});
+    fb.className='fb ok';fb.innerHTML=`<h4>Good buy</h4>${fmt(me.r)} utils per dollar was the best available${tie?' (tied)':''}. ${money(UT.left)} left.`;
+  }
+  utPaint();
+});
+$('#ut-scn').addEventListener('change',utReset);
+$('#ut-reset').addEventListener('click',utReset);
+$('#ut-hide').addEventListener('change',()=>$('#ut-table').classList.toggle('hideR',$('#ut-hide').checked));
+
+/* ---------------- boot ---------------- */
+fcBuild(false); elLoad(); utReset(); paintStats(); prLoad();
+const h=(location.hash||'').slice(1);
+showTab(TABS.includes(h)?h:store.get('tab','guide'));
+})();
+</script>
